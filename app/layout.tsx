@@ -9,10 +9,11 @@ const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 export const metadata: Metadata = {
   title: "World Cup 2026 | Prediction Game",
   description: "Predict the World Cup 2026. Results, group order, topscorers.",
+  manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "WC 2026",
+    title: "WK 2026",
   },
   formatDetection: { telephone: false },
 };
