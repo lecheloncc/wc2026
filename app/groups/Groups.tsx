@@ -14,6 +14,7 @@ export function Groups() {
   const { t } = useT();
   const [teams, setTeams] = useState<Team[]>([]);
   const [predictions, setPredictions] = useState<Record<string, number[]>>({});
+  const [savedPredictions, setSavedPredictions] = useState<Record<string, number[]>>({});
   const [actuals, setActuals] = useState<Record<string, number[]>>({});
   const [locks, setLocks] = useState<Record<string, boolean>>({});
   const [savedGroup, setSavedGroup] = useState<string | null>(null);
@@ -41,6 +42,7 @@ export function Groups() {
       const preds: Record<string, number[]> = {};
       for (const row of p ?? []) preds[row.group_code] = row.order_team_ids;
       setPredictions(preds);
+      setSavedPredictions(preds);
 
       const acts: Record<string, number[]> = {};
       for (const row of gr ?? []) acts[row.group_code] = row.order_team_ids;
@@ -98,6 +100,7 @@ export function Groups() {
     if (error) {
       setErrorGroup({ group, msg: error.message });
     } else {
+      setSavedPredictions((prev) => ({ ...prev, [group]: order }));
       setSavedGroup(group);
       setTimeout(() => setSavedGroup(null), 1500);
     }
@@ -120,6 +123,19 @@ export function Groups() {
             <span className="text-brand-sky">{activeProfile.display_name}</span>
           </p>
         )}
+        <div className="mt-3 flex items-center gap-2">
+          <div className="flex-1 h-1.5 bg-pitch-line rounded-full overflow-hidden">
+            <div
+              className="h-full bg-brand-grass transition-all"
+              style={{
+                width: `${(Object.keys(savedPredictions).length / 12) * 100}%`,
+              }}
+            />
+          </div>
+          <span className="text-[10px] font-mono text-slate-400 whitespace-nowrap">
+            {Object.keys(savedPredictions).length} / 12 {t("groups predicted")}
+          </span>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -130,20 +146,45 @@ export function Groups() {
             const order = predictions[g] ?? grouped[g].map((t) => t.id);
             const actual = actuals[g];
             const breakdown = actual ? scoreGroupOrder(order, actual) : null;
+            const savedOrder = savedPredictions[g];
+            const isSaved = !!savedOrder;
+            const isDirty =
+              isSaved &&
+              (savedOrder.length !== order.length ||
+                savedOrder.some((id, i) => id !== order[i]));
             return (
               <div
                 key={g}
-                className="bg-pitch-card border border-pitch-line rounded-sm p-4"
+                className={`bg-pitch-card border rounded-sm p-4 ${
+                  isSaved && !isDirty ? "border-brand-grass/40" : "border-pitch-line"
+                }`}
               >
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-3 gap-2">
                   <h2 className="text-lg font-black italic uppercase tracking-tight">
                     {t("Group")} {g}
                   </h2>
-                  {locked && (
-                    <span className="text-[10px] uppercase text-slate-500 flex items-center gap-1">
-                      <Lock size={10} /> {t("locked")}
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {isSaved && !isDirty && (
+                      <span className="text-[10px] uppercase font-bold text-brand-grass flex items-center gap-1 bg-brand-grass/10 border border-brand-grass/40 rounded-sm px-2 py-0.5">
+                        <CheckCircle size={10} /> {t("Predicted")}
+                      </span>
+                    )}
+                    {isDirty && (
+                      <span className="text-[10px] uppercase font-bold text-brand-gold flex items-center gap-1 bg-brand-gold/10 border border-brand-gold/40 rounded-sm px-2 py-0.5">
+                        {t("Unsaved changes")}
+                      </span>
+                    )}
+                    {!isSaved && !locked && (
+                      <span className="text-[10px] uppercase font-bold text-slate-500 border border-pitch-line rounded-sm px-2 py-0.5">
+                        {t("Open")}
+                      </span>
+                    )}
+                    {locked && (
+                      <span className="text-[10px] uppercase text-slate-500 flex items-center gap-1">
+                        <Lock size={10} /> {t("locked")}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <ol className="space-y-2">
                   {order.map((teamId, idx) => {

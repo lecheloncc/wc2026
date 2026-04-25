@@ -217,6 +217,12 @@ export const NL: Record<string, string> = {
   "lock individually at each match's kickoff. Change any unfinished pick freely until then.":
     "sluiten per wedstrijd bij de aftrap. Tot dat moment kun je vrij wijzigen.",
 
+  // Groups: predicted state
+  "groups predicted": "groepen voorspeld",
+  "Predicted": "Voorspeld",
+  "Open": "Open",
+  "Unsaved changes": "Niet opgeslagen",
+
   // Misc
   "Language": "Taal",
   "min": "min",

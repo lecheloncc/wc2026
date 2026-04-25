@@ -72,6 +72,19 @@ export function Admin() {
     await loadMatches();
   }
 
+  async function resetResult(m: Match) {
+    const { error } = await supabase
+      .from("matches")
+      .update({ home_score: null, away_score: null, status: "scheduled" })
+      .eq("id", m.id);
+    if (error) {
+      setMsg(`Reset FAILED for ${m.home_name ?? "?"} vs ${m.away_name ?? "?"}: ${error.message}`);
+      return;
+    }
+    setMsg(`Reset ${m.home_name ?? "?"} vs ${m.away_name ?? "?"} (result cleared)`);
+    await loadMatches();
+  }
+
   async function recompute() {
     setRecomputing(true);
     setMsg(null);
@@ -207,7 +220,7 @@ export function Admin() {
         </h2>
         <div className="space-y-2">
           {matches.map((m) => (
-            <MatchRow key={m.id} m={m} onSave={saveResult} />
+            <MatchRow key={m.id} m={m} onSave={saveResult} onReset={resetResult} />
           ))}
         </div>
       </div>
@@ -218,13 +231,16 @@ export function Admin() {
 function MatchRow({
   m,
   onSave,
+  onReset,
 }: {
   m: Match;
   onSave: (m: Match, h: number, a: number) => Promise<void>;
+  onReset: (m: Match) => Promise<void>;
 }) {
   const [home, setHome] = useState<number>(m.home_score ?? 0);
   const [away, setAway] = useState<number>(m.away_score ?? 0);
   const [saving, setSaving] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
   const hasResult = m.home_score != null && m.away_score != null;
   return (
     <div className="bg-pitch-card border border-pitch-line rounded-sm p-3 flex items-center gap-3">
@@ -268,6 +284,40 @@ function MatchRow({
       >
         {saving ? "…" : hasResult ? "Update" : "Save"}
       </button>
+      {hasResult &&
+        (confirmReset ? (
+          <>
+            <button
+              onClick={async () => {
+                setSaving(true);
+                await onReset(m);
+                setSaving(false);
+                setConfirmReset(false);
+                setHome(0);
+                setAway(0);
+              }}
+              disabled={saving}
+              className="font-bold uppercase text-[10px] px-3 py-2 rounded-sm bg-brand-red/20 text-brand-red border border-brand-red/40"
+              title="Confirm reset"
+            >
+              Confirm
+            </button>
+            <button
+              onClick={() => setConfirmReset(false)}
+              className="text-[10px] uppercase font-bold text-slate-500 hover:text-white"
+            >
+              ✕
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={() => setConfirmReset(true)}
+            className="font-bold uppercase text-[10px] px-2 py-2 rounded-sm text-slate-500 hover:text-brand-red border border-pitch-line"
+            title="Reset (clear result)"
+          >
+            Reset
+          </button>
+        ))}
     </div>
   );
 }
