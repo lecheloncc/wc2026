@@ -22,7 +22,7 @@ type Match = {
 export function MatchOne({ matchId }: { matchId: number }) {
   const router = useRouter();
   const { activeKey, activeProfile } = useActiveParticipant();
-  const { t } = useT();
+  const { t, stageName } = useT();
   const [match, setMatch] = useState<Match | null>(null);
   const [predHome, setPredHome] = useState<number>(0);
   const [predAway, setPredAway] = useState<number>(0);
@@ -105,8 +105,10 @@ export function MatchOne({ matchId }: { matchId: number }) {
     <div className="max-w-md mx-auto space-y-6">
       <div className="text-center">
         <p className="text-[10px] uppercase tracking-widest text-slate-500 font-mono">
-          {match.stage === "group" ? `${t("Group")} ${match.group_code}` : match.stage} ·{" "}
-          {new Date(match.kickoff).toLocaleString()}
+          {match.stage === "group"
+            ? `${t("Group")} ${match.group_code}`
+            : stageName(match.stage)}{" "}
+          · {new Date(match.kickoff).toLocaleString()}
         </p>
         <h1 className="text-2xl font-black italic uppercase tracking-tighter text-white mt-2">
           {match.home_name ?? t("TBD")} <span className="text-slate-500">vs</span>{" "}
@@ -172,7 +174,10 @@ export function MatchOne({ matchId }: { matchId: number }) {
               <Row k={t("One side exact")} v={breakdown.oneSide} />
               <Row k={t("Exact bonus")} v={breakdown.exactBonus} />
               {breakdown.multiplier !== 1 && (
-                <Row k={`× ${breakdown.multiplier} (${match.stage})`} v={""} />
+                <Row
+                  k={`× ${breakdown.multiplier} (${stageName(match.stage)})`}
+                  v={""}
+                />
               )}
               <Row k={t("Total")} v={breakdown.total} bold />
             </div>

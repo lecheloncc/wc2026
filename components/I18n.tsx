@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { tFor, type Lang } from "../lib/i18n/translations";
+import { tFor, stageLabel, type Lang } from "../lib/i18n/translations";
 
 const STORAGE_KEY = "wc26.lang";
 const DEFAULT_LANG: Lang = "nl";
@@ -10,6 +10,7 @@ type Ctx = {
   lang: Lang;
   setLang: (l: Lang) => void;
   t: (key: string) => string;
+  stageName: (stage: string | null | undefined) => string;
 };
 
 const I18nCtx = createContext<Ctx | null>(null);
@@ -43,6 +44,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
       lang,
       setLang,
       t: (key: string) => tFor(lang, key),
+      stageName: (stage: string | null | undefined) => stageLabel(lang, stage),
     }),
     [lang]
   );
@@ -58,6 +60,8 @@ export function useT() {
       lang: DEFAULT_LANG,
       setLang: () => {},
       t: (key: string) => tFor(DEFAULT_LANG, key),
+      stageName: (stage: string | null | undefined) =>
+        stageLabel(DEFAULT_LANG, stage),
     };
   }
   return ctx;

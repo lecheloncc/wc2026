@@ -26,7 +26,7 @@ export function Bracket() {
   const [matches, setMatches] = useState<KnockoutMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const { activeKey } = useActiveParticipant();
-  const { t } = useT();
+  const { t, stageName } = useT();
 
   useEffect(() => {
     (async () => {
@@ -87,7 +87,7 @@ export function Bracket() {
         rows.length === 0 ? null : (
           <section key={stage}>
             <h2 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-2">
-              {stage}
+              {stageName(stage)}
             </h2>
             <div className="grid gap-2 md:grid-cols-2">
               {rows.map((m) => {

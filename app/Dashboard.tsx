@@ -33,7 +33,7 @@ type DeadlineState = {
 
 export function Dashboard() {
   const { activeKey, activeProfile } = useActiveParticipant();
-  const { t } = useT();
+  const { t, stageName } = useT();
   const [totals, setTotals] = useState<{ total: number; rank: number | null }>({
     total: 0,
     rank: null,
@@ -164,7 +164,7 @@ export function Dashboard() {
             {new Date(nextMatch.kickoff).toLocaleString()} ·{" "}
             {nextMatch.stage === "group"
               ? `${t("Group")} ${nextMatch.group_code}`
-              : nextMatch.stage}
+              : stageName(nextMatch.stage)}
           </p>
           <Link
             href={`/matches/${nextMatch.id}`}

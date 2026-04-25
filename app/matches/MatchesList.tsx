@@ -22,7 +22,7 @@ type Row = {
 
 export function MatchesList() {
   const { activeKey } = useActiveParticipant();
-  const { t } = useT();
+  const { t, stageName } = useT();
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -86,7 +86,9 @@ export function MatchesList() {
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] uppercase tracking-widest text-slate-500 font-mono">
                   {new Date(r.kickoff).toLocaleString()} ·{" "}
-                  {r.stage === "group" ? `${t("Group")} ${r.group_code}` : r.stage}
+                  {r.stage === "group"
+                    ? `${t("Group")} ${r.group_code}`
+                    : stageName(r.stage)}
                 </p>
                 <p className="text-white font-bold truncate">
                   {r.home_name ?? t("TBD")}{" "}
