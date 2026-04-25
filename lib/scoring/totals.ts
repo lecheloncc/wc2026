@@ -55,6 +55,12 @@ export function computeTotals(args: {
     return u;
   };
 
+  // Ensure a 0-row for any user who has engaged with the game in any way,
+  // so signed-up players appear on the leaderboard before anything is scored.
+  for (const p of args.matchPredictions) ensure(p.user_email);
+  for (const g of args.groupPredictions) ensure(g.user_email);
+  for (const t of args.topscorerPicks) ensure(t.user_email);
+
   const matchById = new Map(args.matches.map((m) => [m.id, m]));
   for (const p of args.matchPredictions) {
     const m = matchById.get(p.match_id);

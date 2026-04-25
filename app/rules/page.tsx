@@ -23,7 +23,7 @@ export default function RulesPage() {
           <ul className="list-disc pl-5 space-y-1 text-sm text-slate-300">
             <li><b>3 pts</b> per team placed in the correct slot (1st–4th)</li>
             <li><b>+5 pt bonus</b> if all four slots are perfect</li>
-            <li>Locks at each group&apos;s opening kickoff</li>
+            <li>Locks at the tournament&apos;s opening kickoff (same as topscorer picks)</li>
           </ul>
         </Section>
 
@@ -36,10 +36,10 @@ export default function RulesPage() {
         </Section>
 
         <Section title="Deadlines">
-          <p className="text-sm text-slate-300">
-            Every prediction locks at the relevant kickoff. You can change any pick
-            freely until then.
-          </p>
+          <ul className="list-disc pl-5 space-y-1 text-sm text-slate-300">
+            <li><b>Group order &amp; topscorers</b>: lock at the tournament&apos;s opening kickoff. Set them before the World Cup starts.</li>
+            <li><b>Match predictions</b>: lock individually at each match&apos;s kickoff. Change any unfinished pick freely until then.</li>
+          </ul>
         </Section>
       </div>
     </SessionGate>

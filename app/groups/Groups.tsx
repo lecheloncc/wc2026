@@ -45,18 +45,20 @@ export function Groups() {
       for (const row of gr ?? []) acts[row.group_code] = row.order_team_ids;
       setActuals(acts);
 
-      // Lock at first kickoff of each group
-      const firstBy: Record<string, number> = {};
+      // Lock ALL groups at the tournament's opening match — group order picks
+      // must be in before the tournament starts (same rule as topscorer picks).
+      let openingKickoff: number | null = null;
       for (const m of firsts ?? []) {
-        if (!m.group_code) continue;
         const k = new Date(m.kickoff).getTime();
-        if (firstBy[m.group_code] == null || k < firstBy[m.group_code]) {
-          firstBy[m.group_code] = k;
-        }
+        if (openingKickoff == null || k < openingKickoff) openingKickoff = k;
       }
       const now = Date.now();
+      const tournamentLocked = openingKickoff != null && openingKickoff <= now;
       const locked: Record<string, boolean> = {};
-      for (const g of Object.keys(firstBy)) locked[g] = firstBy[g] <= now;
+      for (const m of firsts ?? []) {
+        if (!m.group_code) continue;
+        locked[m.group_code] = tournamentLocked;
+      }
       setLocks(locked);
     })();
   }, []);
