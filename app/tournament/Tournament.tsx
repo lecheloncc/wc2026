@@ -8,7 +8,7 @@ import {
   deriveTournamentResults,
   type TournamentPicks,
 } from "../../lib/scoring/tournament";
-import { TopscorerPicks } from "./TopscorerPicks";
+import { TopscorerPicks, type Player } from "./TopscorerPicks";
 
 type Team = {
   id: number;
@@ -31,14 +31,18 @@ export function Tournament() {
   const [email, setEmail] = useState("");
   const [teams, setTeams] = useState<Team[]>([]);
   const [matches, setMatches] = useState<MatchRow[]>([]);
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [goalsByPlayer, setGoalsByPlayer] = useState<Record<number, number>>({});
   const [picks, setPicks] = useState<TournamentPicks>({
     championTeamId: null,
     finalistATeamId: null,
     finalistBTeamId: null,
     darkHorseTeamId: null,
   });
+  const [topscorerPicks, setTopscorerPicks] = useState<number[]>([]);
   const [lockTime, setLockTime] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -48,24 +52,40 @@ export function Tournament() {
       const e = u.user?.email ?? "";
       setEmail(e);
 
-      const [{ data: t }, { data: ms }, { data: mine }, { data: firstMatch }] =
-        await Promise.all([
-          supabase.from("teams").select("id, name, group_code, flag_emoji, pot").order("group_code"),
-          supabase
-            .from("matches")
-            .select("stage, status, home_team_id, away_team_id, home_score, away_score"),
-          supabase
-            .from("tournament_picks")
-            .select("*")
-            .eq("user_email", e)
-            .maybeSingle(),
-          supabase
-            .from("matches")
-            .select("kickoff")
-            .order("kickoff", { ascending: true })
-            .limit(1)
-            .maybeSingle(),
-        ]);
+      const [
+        { data: t },
+        { data: ms },
+        { data: mine },
+        { data: firstMatch },
+        { data: pl },
+        { data: tsMine },
+        { data: goals },
+      ] = await Promise.all([
+        supabase
+          .from("teams")
+          .select("id, name, group_code, flag_emoji, pot")
+          .order("group_code"),
+        supabase
+          .from("matches")
+          .select("stage, status, home_team_id, away_team_id, home_score, away_score"),
+        supabase.from("tournament_picks").select("*").eq("user_email", e).maybeSingle(),
+        supabase
+          .from("matches")
+          .select("kickoff")
+          .order("kickoff", { ascending: true })
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from("players")
+          .select("id, name, team:team_id(name, flag_emoji)")
+          .order("name"),
+        supabase
+          .from("topscorer_picks")
+          .select("player_ids")
+          .eq("user_email", e)
+          .maybeSingle(),
+        supabase.from("player_goals").select("player_id"),
+      ]);
 
       setTeams(t ?? []);
       setMatches(ms ?? []);
@@ -78,6 +98,23 @@ export function Tournament() {
         });
       }
       setLockTime(firstMatch ? new Date(firstMatch.kickoff).getTime() : null);
+
+      setPlayers(
+        (pl ?? []).map((p) => ({
+          id: p.id,
+          name: p.name,
+          // @ts-expect-error relation
+          team_name: p.team?.name ?? "",
+          // @ts-expect-error relation
+          team_flag: p.team?.flag_emoji ?? null,
+        }))
+      );
+      setTopscorerPicks(tsMine?.player_ids ?? []);
+      const counts: Record<number, number> = {};
+      for (const g of goals ?? [])
+        counts[g.player_id] = (counts[g.player_id] ?? 0) + 1;
+      setGoalsByPlayer(counts);
+
       setLoading(false);
     })();
   }, []);
@@ -101,19 +138,45 @@ export function Tournament() {
   );
   const tournamentFinished = results.championTeamId != null;
 
-  async function save() {
+  const topscorerComplete = topscorerPicks.length === 3;
+  const tournamentComplete =
+    picks.championTeamId != null &&
+    picks.finalistATeamId != null &&
+    picks.finalistBTeamId != null &&
+    picks.darkHorseTeamId != null;
+
+  async function saveAll() {
     setSaveError(null);
     setSaved(false);
-    const { error } = await supabase.from("tournament_picks").upsert({
-      user_email: email,
-      champion_team_id: picks.championTeamId,
-      finalist_a_team_id: picks.finalistATeamId,
-      finalist_b_team_id: picks.finalistBTeamId,
-      dark_horse_team_id: picks.darkHorseTeamId,
-      updated_at: new Date().toISOString(),
-    });
-    if (error) {
-      setSaveError(error.message);
+    setSaving(true);
+
+    const ops: Promise<{ error: { message: string } | null }>[] = [];
+    if (tournamentComplete) {
+      ops.push(
+        supabase.from("tournament_picks").upsert({
+          user_email: email,
+          champion_team_id: picks.championTeamId,
+          finalist_a_team_id: picks.finalistATeamId,
+          finalist_b_team_id: picks.finalistBTeamId,
+          dark_horse_team_id: picks.darkHorseTeamId,
+          updated_at: new Date().toISOString(),
+        })
+      );
+    }
+    if (topscorerComplete) {
+      ops.push(
+        supabase.from("topscorer_picks").upsert({
+          user_email: email,
+          player_ids: topscorerPicks,
+          updated_at: new Date().toISOString(),
+        })
+      );
+    }
+    const results = await Promise.all(ops);
+    setSaving(false);
+    const err = results.find((r) => r.error)?.error;
+    if (err) {
+      setSaveError(err.message);
     } else {
       setSaved(true);
       setTimeout(() => setSaved(false), 1500);
@@ -122,9 +185,10 @@ export function Tournament() {
 
   if (loading) return <p className="text-slate-500 text-xs uppercase">Loading…</p>;
 
-  // For the finalists, ensure the two pickers can't share the same team.
   const finalistAOptions = allTeams.filter((t) => t.id !== picks.finalistBTeamId);
   const finalistBOptions = allTeams.filter((t) => t.id !== picks.finalistATeamId);
+
+  const nothingComplete = !tournamentComplete && !topscorerComplete;
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
@@ -191,7 +255,13 @@ export function Tournament() {
         locked={locked}
       />
 
-      <TopscorerPicks />
+      <TopscorerPicks
+        players={players}
+        goalsByPlayer={goalsByPlayer}
+        picks={topscorerPicks}
+        setPicks={setTopscorerPicks}
+        locked={locked}
+      />
 
       <div className="bg-pitch-card border border-pitch-line rounded-sm p-5">
         {locked ? (
@@ -201,13 +271,15 @@ export function Tournament() {
         ) : (
           <>
             <button
-              onClick={save}
-              className="w-full bg-brand-sky hover:bg-sky-500 text-pitch-bg font-bold uppercase py-3 rounded-sm"
+              onClick={saveAll}
+              disabled={saving || nothingComplete}
+              className="w-full bg-brand-sky hover:bg-sky-500 text-pitch-bg font-bold uppercase py-3 rounded-sm disabled:opacity-40"
             >
-              {saved ? "Saved!" : "Save Champion / Finalists / Dark Horse"}
+              {saved ? "Saved!" : saving ? "Saving…" : "Save Picks"}
             </button>
             <p className="mt-2 text-[10px] text-slate-500 font-mono text-center">
-              Topscorer picks have their own Save button above.
+              Saves all completed sections (Champion · Finalists · Dark Horse · Topscorer).
+              Sections that aren&apos;t fully filled in are skipped.
             </p>
           </>
         )}

@@ -1,68 +1,29 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { supabase } from "../../lib/supabase";
-import { Lock, Search, X, Goal } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Search, X, Goal } from "lucide-react";
 
-type Player = { id: number; name: string; team_name: string; team_flag: string | null };
+export type Player = {
+  id: number;
+  name: string;
+  team_name: string;
+  team_flag: string | null;
+};
 
-export function TopscorerPicks() {
-  const [email, setEmail] = useState("");
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [picks, setPicks] = useState<number[]>([]);
-  const [goalsByPlayer, setGoalsByPlayer] = useState<Record<number, number>>({});
-  const [lockTime, setLockTime] = useState<number | null>(null);
+export function TopscorerPicks({
+  players,
+  goalsByPlayer,
+  picks,
+  setPicks,
+  locked,
+}: {
+  players: Player[];
+  goalsByPlayer: Record<number, number>;
+  picks: number[];
+  setPicks: (next: number[]) => void;
+  locked: boolean;
+}) {
   const [query, setQuery] = useState("");
-  const [saved, setSaved] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const e = userData.user?.email ?? "";
-      setEmail(e);
-
-      const [{ data: pl }, { data: mine }, { data: goals }, { data: firstMatch }] =
-        await Promise.all([
-          supabase
-            .from("players")
-            .select("id, name, team:team_id(name, flag_emoji)")
-            .order("name"),
-          supabase
-            .from("topscorer_picks")
-            .select("player_ids")
-            .eq("user_email", e)
-            .maybeSingle(),
-          supabase.from("player_goals").select("player_id"),
-          supabase
-            .from("matches")
-            .select("kickoff")
-            .order("kickoff", { ascending: true })
-            .limit(1)
-            .maybeSingle(),
-        ]);
-
-      setPlayers(
-        (pl ?? []).map((p) => ({
-          id: p.id,
-          name: p.name,
-          // @ts-expect-error relation
-          team_name: p.team?.name ?? "",
-          // @ts-expect-error relation
-          team_flag: p.team?.flag_emoji ?? null,
-        }))
-      );
-      setPicks(mine?.player_ids ?? []);
-
-      const counts: Record<number, number> = {};
-      for (const g of goals ?? []) counts[g.player_id] = (counts[g.player_id] ?? 0) + 1;
-      setGoalsByPlayer(counts);
-
-      setLockTime(firstMatch ? new Date(firstMatch.kickoff).getTime() : null);
-    })();
-  }, []);
-
-  const locked = lockTime != null && lockTime <= Date.now();
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
@@ -77,26 +38,10 @@ export function TopscorerPicks() {
 
   function toggle(id: number) {
     if (locked) return;
-    setPicks((cur) => {
-      if (cur.includes(id)) return cur.filter((x) => x !== id);
-      if (cur.length >= 3) return cur;
-      return [...cur, id];
-    });
-  }
-
-  async function save() {
-    if (picks.length !== 3) return;
-    setSaveError(null);
-    const { error } = await supabase.from("topscorer_picks").upsert({
-      user_email: email,
-      player_ids: picks,
-      updated_at: new Date().toISOString(),
-    });
-    if (error) {
-      setSaveError(error.message);
-    } else {
-      setSaved(true);
-      setTimeout(() => setSaved(false), 1500);
+    if (picks.includes(id)) {
+      setPicks(picks.filter((x) => x !== id));
+    } else if (picks.length < 3) {
+      setPicks([...picks, id]);
     }
   }
 
@@ -139,6 +84,7 @@ export function TopscorerPicks() {
                 <button
                   onClick={() => toggle(p.id)}
                   className="text-slate-500 hover:text-brand-red"
+                  aria-label="Remove pick"
                 >
                   <X size={14} />
                 </button>
@@ -149,27 +95,9 @@ export function TopscorerPicks() {
       )}
       {picks.length === 3 && (
         <p className="mt-2 text-xs text-slate-400">
-          Combined goals so far: <span className="text-white font-bold">{totalGoals}</span>{" "}
-          ({totalGoals * 2} pts)
-        </p>
-      )}
-      {!locked && (
-        <button
-          onClick={save}
-          disabled={picks.length !== 3}
-          className="mt-3 w-full bg-brand-sky hover:bg-sky-500 text-pitch-bg font-bold uppercase py-2 text-xs rounded-sm disabled:opacity-40"
-        >
-          {saved ? "Saved!" : "Save Topscorer Picks"}
-        </button>
-      )}
-      {saveError && (
-        <p className="mt-2 text-[11px] text-red-300 font-mono bg-red-900/20 border border-red-500/40 rounded-sm p-2">
-          Save failed: {saveError}
-        </p>
-      )}
-      {locked && (
-        <p className="mt-2 text-xs text-slate-500 flex items-center gap-1">
-          <Lock size={10} /> Picks locked
+          Combined goals so far:{" "}
+          <span className="text-white font-bold">{totalGoals}</span> (
+          {totalGoals * 2} pts)
         </p>
       )}
 
