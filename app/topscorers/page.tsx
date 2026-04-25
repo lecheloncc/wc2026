@@ -1,10 +1,5 @@
-import { SessionGate } from "../../components/SessionGate";
-import { Topscorers } from "./Topscorers";
+import { redirect } from "next/navigation";
 
-export default function TopscorersPage() {
-  return (
-    <SessionGate>
-      <Topscorers />
-    </SessionGate>
-  );
+export default function TopscorersRedirect() {
+  redirect("/tournament");
 }

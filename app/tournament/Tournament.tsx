@@ -8,6 +8,7 @@ import {
   deriveTournamentResults,
   type TournamentPicks,
 } from "../../lib/scoring/tournament";
+import { TopscorerPicks } from "./TopscorerPicks";
 
 type Team = {
   id: number;
@@ -190,6 +191,8 @@ export function Tournament() {
         locked={locked}
       />
 
+      <TopscorerPicks />
+
       <div className="bg-pitch-card border border-pitch-line rounded-sm p-5">
         {locked ? (
           <p className="text-xs text-slate-500 flex items-center gap-2">
@@ -200,8 +203,11 @@ export function Tournament() {
             onClick={save}
             className="w-full bg-brand-sky hover:bg-sky-500 text-pitch-bg font-bold uppercase py-3 rounded-sm"
           >
-            {saved ? "Saved!" : "Save All Picks"}
+            {saved ? "Saved!" : "Save Champion / Finalists / Dark Horse"}
           </button>
+          <p className="mt-2 text-[10px] text-slate-500 font-mono text-center">
+            Topscorer picks have their own Save button above.
+          </p>
         )}
         {saveError && (
           <p className="mt-3 text-xs text-red-300 font-mono bg-red-900/20 border border-red-500/40 rounded-sm p-3">

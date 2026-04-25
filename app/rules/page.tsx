@@ -27,23 +27,16 @@ export default function RulesPage() {
           </ul>
         </Section>
 
-        <Section title="Topscorer picks (pick 3)">
-          <ul className="list-disc pl-5 space-y-1 text-sm text-slate-300">
-            <li><b>2 pts</b> per goal scored by any of your three picks</li>
-            <li><b>+10 pt bonus</b> if one of your picks wins the Golden Boot</li>
-            <li>Locks at the opening match of the tournament</li>
-          </ul>
-        </Section>
-
-        <Section title="Tournament picks (bonus)">
+        <Section title="Tournament picks (all bonus)">
           <p className="text-xs text-slate-400 mb-3">
-            Three set-and-forget pre-tournament predictions. Up to 95 pts on the line.
+            Set-and-forget pre-tournament predictions, all on the <b>/tournament</b> tab.
+            Lock at the opening match.
           </p>
           <ul className="list-disc pl-5 space-y-1 text-sm text-slate-300">
             <li><b>Champion</b>: 30 pts if your pick wins the trophy</li>
             <li><b>Finalists pair</b>: 10 pts per correct finalist · +10 if both right (max 30)</li>
             <li><b>Dark Horse</b> (Pot 3 or Pot 4 team): 10 if reaches R16 · +10 QF · +15 SF (max 35)</li>
-            <li>Locks at the opening match of the tournament</li>
+            <li><b>Topscorer picks</b> (3 players): 2 pts per goal · +10 Golden Boot bonus</li>
           </ul>
         </Section>
 
