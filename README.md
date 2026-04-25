@@ -123,3 +123,5 @@ scripts/
 - `npm run build` → no type errors
 - Sign up → log in → save a prediction → log out → log back in → prediction persists
 - Admin enters a test result → `/leaderboard` shows a score after Recompute
+
+<!-- redeploy trigger -->
