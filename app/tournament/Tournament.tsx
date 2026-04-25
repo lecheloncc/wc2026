@@ -150,33 +150,30 @@ export function Tournament() {
     setSaved(false);
     setSaving(true);
 
-    const ops: Promise<{ error: { message: string } | null }>[] = [];
+    const errors: string[] = [];
     if (tournamentComplete) {
-      ops.push(
-        supabase.from("tournament_picks").upsert({
-          user_email: email,
-          champion_team_id: picks.championTeamId,
-          finalist_a_team_id: picks.finalistATeamId,
-          finalist_b_team_id: picks.finalistBTeamId,
-          dark_horse_team_id: picks.darkHorseTeamId,
-          updated_at: new Date().toISOString(),
-        })
-      );
+      const { error } = await supabase.from("tournament_picks").upsert({
+        user_email: email,
+        champion_team_id: picks.championTeamId,
+        finalist_a_team_id: picks.finalistATeamId,
+        finalist_b_team_id: picks.finalistBTeamId,
+        dark_horse_team_id: picks.darkHorseTeamId,
+        updated_at: new Date().toISOString(),
+      });
+      if (error) errors.push(`Tournament: ${error.message}`);
     }
     if (topscorerComplete) {
-      ops.push(
-        supabase.from("topscorer_picks").upsert({
-          user_email: email,
-          player_ids: topscorerPicks,
-          updated_at: new Date().toISOString(),
-        })
-      );
+      const { error } = await supabase.from("topscorer_picks").upsert({
+        user_email: email,
+        player_ids: topscorerPicks,
+        updated_at: new Date().toISOString(),
+      });
+      if (error) errors.push(`Topscorer: ${error.message}`);
     }
-    const results = await Promise.all(ops);
+
     setSaving(false);
-    const err = results.find((r) => r.error)?.error;
-    if (err) {
-      setSaveError(err.message);
+    if (errors.length > 0) {
+      setSaveError(errors.join(" · "));
     } else {
       setSaved(true);
       setTimeout(() => setSaved(false), 1500);
