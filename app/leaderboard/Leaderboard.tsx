@@ -9,7 +9,7 @@ import { useT } from "../../components/I18n";
 type Row = {
   user_email: string;
   display_name: string;
-  parent_email: string | null;
+  parent_display_name: string | null;
   is_owner: boolean;
   match_points: number;
   group_points: number;
@@ -18,7 +18,8 @@ type Row = {
   total: number;
 };
 
-const COLS = "grid-cols-[36px_1fr_50px_50px_50px_50px_60px]";
+const COLS =
+  "grid-cols-[28px_1fr_60px_55px_55px_55px_60px] gap-x-2";
 
 export function Leaderboard() {
   const { activeKey } = useActiveParticipant();
@@ -40,14 +41,29 @@ export function Leaderboard() {
       const byKey = new Map(
         (profiles ?? []).map((p) => [p.participant_key, p])
       );
+      // Map owner-email → owner profile, so kid rows can show the parent's
+      // display name (instead of the parent's email local-part).
+      const ownerByEmail = new Map(
+        (profiles ?? [])
+          .filter((p) => p.is_owner)
+          .map((p) => [p.owner_email, p])
+      );
 
       setRows(
         (board ?? []).map((r) => {
           const profile = byKey.get(r.user_email);
+          const ownerProfile =
+            profile && !profile.is_owner
+              ? ownerByEmail.get(profile.owner_email)
+              : null;
           return {
             user_email: r.user_email,
             display_name: profile?.display_name ?? r.user_email,
-            parent_email: profile?.is_owner ? null : profile?.owner_email ?? null,
+            parent_display_name:
+              ownerProfile?.display_name ??
+              (profile && !profile.is_owner
+                ? profile.owner_email.split("@")[0]
+                : null),
             is_owner: profile?.is_owner ?? true,
             match_points: r.match_points,
             group_points: r.group_points,
@@ -97,9 +113,9 @@ export function Leaderboard() {
               </span>
               <span className="truncate">
                 {r.display_name}
-                {!r.is_owner && (
+                {!r.is_owner && r.parent_display_name && (
                   <span className="ml-2 text-[10px] text-slate-500 font-mono">
-                    ({r.parent_email?.split("@")[0]}&apos;s)
+                    ({r.parent_display_name}&apos;s)
                   </span>
                 )}
               </span>
