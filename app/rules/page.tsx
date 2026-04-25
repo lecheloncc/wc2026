@@ -29,7 +29,7 @@ export default function RulesPage() {
 
         <Section title="Tournament picks (all bonus)">
           <p className="text-xs text-slate-400 mb-3">
-            Set-and-forget pre-tournament predictions, all on the <b>/tournament</b> tab.
+            Set-and-forget pre-tournament predictions, all on the <b>/predictions</b> tab.
             Lock at the opening match.
           </p>
           <ul className="list-disc pl-5 space-y-1 text-sm text-slate-300">

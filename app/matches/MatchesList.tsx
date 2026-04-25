@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "../../lib/supabase";
 import { Lock } from "lucide-react";
+import { useActiveParticipant } from "../../components/ActiveParticipant";
 
 type Row = {
   id: number;
@@ -18,14 +19,14 @@ type Row = {
   pred_away: number | null;
 };
 
-export function PredictList() {
+export function MatchesList() {
+  const { activeKey } = useActiveParticipant();
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const email = userData.user?.email ?? "";
+      if (!activeKey) return;
 
       const { data: matches } = await supabase
         .from("matches")
@@ -37,7 +38,7 @@ export function PredictList() {
       const { data: preds } = await supabase
         .from("match_predictions")
         .select("match_id, pred_home, pred_away")
-        .eq("user_email", email);
+        .eq("user_email", activeKey);
       const predMap = new Map(preds?.map((p) => [p.match_id, p]) ?? []);
 
       setRows(
@@ -58,7 +59,7 @@ export function PredictList() {
       );
       setLoading(false);
     })();
-  }, []);
+  }, [activeKey]);
 
   if (loading) return <p className="text-slate-500 text-xs uppercase">Loading…</p>;
   const now = Date.now();
@@ -75,7 +76,7 @@ export function PredictList() {
         return (
           <Link
             key={r.id}
-            href={`/predict/${r.id}`}
+            href={`/matches/${r.id}`}
             className="block bg-pitch-card border border-pitch-line rounded-sm p-4 hover:border-brand-sky transition-colors"
           >
             <div className="flex items-center justify-between gap-4">

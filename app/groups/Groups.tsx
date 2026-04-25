@@ -4,11 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { ChevronUp, ChevronDown, Lock, CheckCircle } from "lucide-react";
 import { scoreGroupOrder } from "../../lib/scoring/groups";
+import { useActiveParticipant } from "../../components/ActiveParticipant";
 
 type Team = { id: number; name: string; group_code: string; flag_emoji: string | null };
 
 export function Groups() {
-  const [email, setEmail] = useState("");
+  const { activeKey, activeProfile } = useActiveParticipant();
   const [teams, setTeams] = useState<Team[]>([]);
   const [predictions, setPredictions] = useState<Record<string, number[]>>({});
   const [actuals, setActuals] = useState<Record<string, number[]>>({});
@@ -18,9 +19,7 @@ export function Groups() {
 
   useEffect(() => {
     (async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const e = userData.user?.email ?? "";
-      setEmail(e);
+      if (!activeKey) return;
 
       const [{ data: t }, { data: p }, { data: gr }, { data: firsts }] =
         await Promise.all([
@@ -28,7 +27,7 @@ export function Groups() {
           supabase
             .from("group_predictions")
             .select("group_code, order_team_ids")
-            .eq("user_email", e),
+            .eq("user_email", activeKey),
           supabase.from("group_results").select("group_code, order_team_ids"),
           supabase
             .from("matches")
@@ -61,7 +60,7 @@ export function Groups() {
       }
       setLocks(locked);
     })();
-  }, []);
+  }, [activeKey]);
 
   const grouped = useMemo(() => {
     const byGroup: Record<string, Team[]> = {};
@@ -89,7 +88,7 @@ export function Groups() {
     if (!order || order.length !== 4) return;
     setErrorGroup(null);
     const { error } = await supabase.from("group_predictions").upsert({
-      user_email: email,
+      user_email: activeKey,
       group_code: group,
       order_team_ids: order,
       updated_at: new Date().toISOString(),
@@ -110,8 +109,13 @@ export function Groups() {
         </h1>
         <p className="text-xs text-slate-400 mt-1">
           Rank 1st → 4th. 3 pts per correct slot · 5 pt bonus for a perfect group. Locks
-          at first kickoff.
+          at the opening match.
         </p>
+        {activeProfile && (
+          <p className="text-[10px] text-slate-500 font-mono mt-2">
+            Saving as <span className="text-brand-sky">{activeProfile.display_name}</span>
+          </p>
+        )}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

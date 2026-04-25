@@ -9,6 +9,7 @@ import {
   type TournamentPicks,
 } from "../../lib/scoring/tournament";
 import { TopscorerPicks, type Player } from "./TopscorerPicks";
+import { useActiveParticipant } from "../../components/ActiveParticipant";
 
 type Team = {
   id: number;
@@ -27,8 +28,8 @@ type MatchRow = {
   away_score: number | null;
 };
 
-export function Tournament() {
-  const [email, setEmail] = useState("");
+export function Predictions() {
+  const { activeKey, activeProfile } = useActiveParticipant();
   const [teams, setTeams] = useState<Team[]>([]);
   const [matches, setMatches] = useState<MatchRow[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -48,9 +49,7 @@ export function Tournament() {
 
   useEffect(() => {
     (async () => {
-      const { data: u } = await supabase.auth.getUser();
-      const e = u.user?.email ?? "";
-      setEmail(e);
+      if (!activeKey) return;
 
       const [
         { data: t },
@@ -68,7 +67,7 @@ export function Tournament() {
         supabase
           .from("matches")
           .select("stage, status, home_team_id, away_team_id, home_score, away_score"),
-        supabase.from("tournament_picks").select("*").eq("user_email", e).maybeSingle(),
+        supabase.from("tournament_picks").select("*").eq("user_email", activeKey).maybeSingle(),
         supabase
           .from("matches")
           .select("kickoff")
@@ -82,7 +81,7 @@ export function Tournament() {
         supabase
           .from("topscorer_picks")
           .select("player_ids")
-          .eq("user_email", e)
+          .eq("user_email", activeKey)
           .maybeSingle(),
         supabase.from("player_goals").select("player_id"),
       ]);
@@ -153,7 +152,7 @@ export function Tournament() {
     const errors: string[] = [];
     if (tournamentComplete) {
       const { error } = await supabase.from("tournament_picks").upsert({
-        user_email: email,
+        user_email: activeKey,
         champion_team_id: picks.championTeamId,
         finalist_a_team_id: picks.finalistATeamId,
         finalist_b_team_id: picks.finalistBTeamId,
@@ -164,7 +163,7 @@ export function Tournament() {
     }
     if (topscorerComplete) {
       const { error } = await supabase.from("topscorer_picks").upsert({
-        user_email: email,
+        user_email: activeKey,
         player_ids: topscorerPicks,
         updated_at: new Date().toISOString(),
       });
@@ -191,12 +190,17 @@ export function Tournament() {
     <div className="space-y-6 max-w-2xl mx-auto">
       <header>
         <h1 className="text-xl font-black italic uppercase tracking-tighter">
-          Tournament Picks
+          Predictions
         </h1>
         <p className="text-xs text-slate-400 mt-1">
-          Bonus pre-tournament predictions. Locks at the opening match. Up to{" "}
-          <b>95 pts</b> on the line — significant but not dominant.
+          Pre-tournament picks: champion, finalists, dark horse, topscorers. Locks at the
+          opening match. Up to <b>95 pts</b> on the line — plus the topscorer stream.
         </p>
+        {activeProfile && (
+          <p className="text-[10px] text-slate-500 font-mono mt-2">
+            Saving as <span className="text-brand-sky">{activeProfile.display_name}</span>
+          </p>
+        )}
       </header>
 
       <PickSection

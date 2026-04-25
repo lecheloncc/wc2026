@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { Lock } from "lucide-react";
+import { useActiveParticipant } from "../../components/ActiveParticipant";
 
 type KnockoutMatch = {
   id: number;
@@ -23,11 +24,11 @@ const STAGES = ["R32", "R16", "QF", "SF", "3rd", "final"];
 export function Bracket() {
   const [matches, setMatches] = useState<KnockoutMatch[]>([]);
   const [loading, setLoading] = useState(true);
+  const { activeKey } = useActiveParticipant();
 
   useEffect(() => {
     (async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const email = userData.user?.email ?? "";
+      if (!activeKey) return;
 
       const { data: ms } = await supabase
         .from("matches")
@@ -40,7 +41,7 @@ export function Bracket() {
       const { data: preds } = await supabase
         .from("match_predictions")
         .select("match_id, pred_home, pred_away")
-        .eq("user_email", email);
+        .eq("user_email", activeKey);
       const predMap = new Map(preds?.map((p) => [p.match_id, p]) ?? []);
 
       setMatches(
@@ -61,7 +62,7 @@ export function Bracket() {
       );
       setLoading(false);
     })();
-  }, []);
+  }, [activeKey]);
 
   if (loading) return <p className="text-slate-500 text-xs">Loading…</p>;
 
@@ -93,7 +94,7 @@ export function Bracket() {
                 return (
                   <Link
                     key={m.id}
-                    href={`/predict/${m.id}`}
+                    href={`/matches/${m.id}`}
                     className="bg-pitch-card border border-pitch-line rounded-sm p-3 hover:border-brand-sky"
                   >
                     <p className="text-[10px] uppercase tracking-widest text-slate-500 font-mono">

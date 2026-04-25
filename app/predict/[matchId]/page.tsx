@@ -1,15 +1,10 @@
-import { SessionGate } from "../../../components/SessionGate";
-import { PredictOne } from "./PredictOne";
+import { redirect } from "next/navigation";
 
-export default async function PredictMatchPage({
+export default async function PredictMatchRedirect({
   params,
 }: {
   params: Promise<{ matchId: string }>;
 }) {
   const { matchId } = await params;
-  return (
-    <SessionGate>
-      <PredictOne matchId={Number(matchId)} />
-    </SessionGate>
-  );
+  redirect(`/matches/${matchId}`);
 }

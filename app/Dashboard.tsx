@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "../lib/supabase";
+import { useActiveParticipant } from "../components/ActiveParticipant";
 import {
   Calendar,
   Target,
@@ -30,7 +31,7 @@ type DeadlineState = {
 };
 
 export function Dashboard() {
-  const [email, setEmail] = useState<string>("");
+  const { activeKey, activeProfile } = useActiveParticipant();
   const [totals, setTotals] = useState<{ total: number; rank: number | null }>({
     total: 0,
     rank: null,
@@ -45,9 +46,8 @@ export function Dashboard() {
 
   useEffect(() => {
     (async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const e = userData.user?.email ?? "";
-      setEmail(e);
+      if (!activeKey) return;
+      const e = activeKey;
 
       const { data: board } = await supabase
         .from("leaderboard_cache")
@@ -127,7 +127,10 @@ export function Dashboard() {
         hasTournamentPicks: tournamentDone,
       });
     })();
-  }, []);
+  }, [activeKey]);
+
+  const displayName =
+    activeProfile?.display_name ?? activeKey?.split("@")[0] ?? "";
 
   return (
     <div className="space-y-6">
@@ -136,7 +139,7 @@ export function Dashboard() {
           Welcome back
         </p>
         <h1 className="text-2xl font-black italic uppercase tracking-tighter text-white">
-          {email}
+          {displayName}
         </h1>
         <div className="mt-4 grid grid-cols-2 gap-4">
           <Stat label="Total Points" value={totals.total} />
@@ -162,7 +165,7 @@ export function Dashboard() {
               : nextMatch.stage}
           </p>
           <Link
-            href={`/predict/${nextMatch.id}`}
+            href={`/matches/${nextMatch.id}`}
             className="mt-4 inline-block bg-brand-sky hover:bg-sky-500 text-pitch-bg font-bold uppercase text-xs px-4 py-2 rounded-sm"
           >
             Enter Prediction
@@ -171,9 +174,9 @@ export function Dashboard() {
       )}
 
       <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <QuickCard href="/predict" icon={<Target size={16} />} label="All Matches" />
+        <QuickCard href="/matches" icon={<Target size={16} />} label="All Matches" />
         <QuickCard href="/groups" icon={<Users size={16} />} label="Group Order" />
-        <QuickCard href="/tournament" icon={<Crown size={16} />} label="Tournament" />
+        <QuickCard href="/predictions" icon={<Crown size={16} />} label="Predictions" />
         <QuickCard href="/leaderboard" icon={<Trophy size={16} />} label="Leaderboard" />
       </section>
     </div>
@@ -213,13 +216,13 @@ function DeadlineCard({ state }: { state: DeadlineState }) {
           locked={locked}
         />
         <DeadlineLink
-          href="/tournament"
+          href="/predictions"
           label="Champion / Finalists / Dark Horse"
           done={state.hasTournamentPicks}
           locked={locked}
         />
         <DeadlineLink
-          href="/tournament"
+          href="/predictions"
           label="Topscorer Picks"
           done={state.hasTopscorerPicks}
           locked={locked}

@@ -1,10 +1,5 @@
-import { SessionGate } from "../../components/SessionGate";
-import { Tournament } from "./Tournament";
+import { redirect } from "next/navigation";
 
-export default function TournamentPage() {
-  return (
-    <SessionGate>
-      <Tournament />
-    </SessionGate>
-  );
+export default function TournamentRedirect() {
+  redirect("/predictions");
 }

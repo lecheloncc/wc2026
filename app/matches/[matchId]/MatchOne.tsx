@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 import { scoreMatch, type Stage } from "../../../lib/scoring/match";
 import { Lock, CheckCircle } from "lucide-react";
+import { useActiveParticipant } from "../../../components/ActiveParticipant";
 
 type Match = {
   id: number;
@@ -17,9 +18,9 @@ type Match = {
   away_score: number | null;
 };
 
-export function PredictOne({ matchId }: { matchId: number }) {
+export function MatchOne({ matchId }: { matchId: number }) {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const { activeKey, activeProfile } = useActiveParticipant();
   const [match, setMatch] = useState<Match | null>(null);
   const [predHome, setPredHome] = useState<number>(0);
   const [predAway, setPredAway] = useState<number>(0);
@@ -30,10 +31,7 @@ export function PredictOne({ matchId }: { matchId: number }) {
 
   useEffect(() => {
     (async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const e = userData.user?.email ?? "";
-      setEmail(e);
-
+      if (!activeKey) return;
       const { data: m } = await supabase
         .from("matches")
         .select(
@@ -59,16 +57,19 @@ export function PredictOne({ matchId }: { matchId: number }) {
       const { data: p } = await supabase
         .from("match_predictions")
         .select("pred_home, pred_away")
-        .eq("user_email", e)
+        .eq("user_email", activeKey)
         .eq("match_id", matchId)
         .maybeSingle();
       if (p) {
         setPredHome(p.pred_home);
         setPredAway(p.pred_away);
+      } else {
+        setPredHome(0);
+        setPredAway(0);
       }
       setLoading(false);
     })();
-  }, [matchId]);
+  }, [matchId, activeKey]);
 
   if (loading || !match) return <p className="text-slate-500 text-xs">Loading…</p>;
 
@@ -83,7 +84,7 @@ export function PredictOne({ matchId }: { matchId: number }) {
     setSaved(false);
     setSaveError(null);
     const { error } = await supabase.from("match_predictions").upsert({
-      user_email: email,
+      user_email: activeKey,
       match_id: matchId,
       pred_home: predHome,
       pred_away: predAway,
@@ -94,7 +95,7 @@ export function PredictOne({ matchId }: { matchId: number }) {
       setSaveError(error.message);
     } else {
       setSaved(true);
-      setTimeout(() => router.push("/predict"), 600);
+      setTimeout(() => router.push("/matches"), 600);
     }
   }
 
@@ -109,6 +110,11 @@ export function PredictOne({ matchId }: { matchId: number }) {
           {match.home_name ?? "TBD"} <span className="text-slate-500">vs</span>{" "}
           {match.away_name ?? "TBD"}
         </h1>
+        {activeProfile && (
+          <p className="text-[10px] text-slate-500 font-mono mt-2">
+            Saving as {activeProfile.display_name}
+          </p>
+        )}
       </div>
 
       <div className="bg-pitch-card border border-pitch-line rounded-sm p-6">

@@ -1,10 +1,5 @@
-import { SessionGate } from "../../components/SessionGate";
-import { PredictList } from "./PredictList";
+import { redirect } from "next/navigation";
 
-export default function PredictPage() {
-  return (
-    <SessionGate>
-      <PredictList />
-    </SessionGate>
-  );
+export default function PredictRedirect() {
+  redirect("/matches");
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import AuthGate from "./AuthGate";
 import { Nav } from "./Nav";
+import { ActiveParticipantProvider } from "./ActiveParticipant";
 
 const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL?.toLowerCase() ?? "";
 
@@ -37,9 +38,9 @@ export function SessionGate({ children }: { children: React.ReactNode }) {
   const isAdmin = email.toLowerCase() === ADMIN_EMAIL;
 
   return (
-    <>
+    <ActiveParticipantProvider authEmail={email}>
       <Nav email={email} isAdmin={isAdmin} />
       <main className="max-w-6xl mx-auto px-4 py-6">{children}</main>
-    </>
+    </ActiveParticipantProvider>
   );
 }
