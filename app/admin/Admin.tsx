@@ -104,8 +104,7 @@ export function Admin() {
           : [];
 
       const totals = computeTotals({
-        // @ts-expect-error stage is a string in the DB row, but scoreMatch accepts it
-        matches: ms ?? [],
+        matches: (ms ?? []) as Parameters<typeof computeTotals>[0]["matches"],
         matchPredictions: mp ?? [],
         groupPredictions: gp ?? [],
         groupActuals: gr ?? [],
