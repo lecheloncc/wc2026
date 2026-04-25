@@ -22,6 +22,8 @@ type NextMatch = {
   away: string | null;
   stage: string;
   group_code: string | null;
+  pred_home: number | null;
+  pred_away: number | null;
 };
 
 type DeadlineState = {
@@ -38,7 +40,7 @@ export function Dashboard() {
     total: 0,
     rank: null,
   });
-  const [nextMatch, setNextMatch] = useState<NextMatch | null>(null);
+  const [upcomingMatches, setUpcomingMatches] = useState<NextMatch[]>([]);
   const [deadline, setDeadline] = useState<DeadlineState>({
     openingKickoff: null,
     hasGroupPicks: false,
@@ -65,7 +67,7 @@ export function Dashboard() {
       }
 
       const [
-        { data: m },
+        { data: ms },
         { data: opening },
         { data: gp },
         { data: tsp },
@@ -78,8 +80,7 @@ export function Dashboard() {
           )
           .gt("kickoff", new Date().toISOString())
           .order("kickoff", { ascending: true })
-          .limit(1)
-          .maybeSingle(),
+          .limit(4),
         supabase
           .from("matches")
           .select("kickoff")
@@ -102,18 +103,39 @@ export function Dashboard() {
           .maybeSingle(),
       ]);
 
-      if (m) {
-        setNextMatch({
-          id: m.id,
-          kickoff: m.kickoff,
-          stage: m.stage,
-          group_code: m.group_code,
-          // @ts-expect-error relation
-          home: m.home?.name ?? null,
-          // @ts-expect-error relation
-          away: m.away?.name ?? null,
-        });
+      const upcomingIds = (ms ?? []).map((m) => m.id);
+      let predMap = new Map<number, { pred_home: number; pred_away: number }>();
+      if (upcomingIds.length > 0) {
+        const { data: preds } = await supabase
+          .from("match_predictions")
+          .select("match_id, pred_home, pred_away")
+          .eq("user_email", e)
+          .in("match_id", upcomingIds);
+        predMap = new Map(
+          (preds ?? []).map((p) => [
+            p.match_id,
+            { pred_home: p.pred_home, pred_away: p.pred_away },
+          ])
+        );
       }
+
+      setUpcomingMatches(
+        (ms ?? []).map((m) => {
+          const pred = predMap.get(m.id);
+          return {
+            id: m.id,
+            kickoff: m.kickoff,
+            stage: m.stage,
+            group_code: m.group_code,
+            // @ts-expect-error relation
+            home: m.home?.name ?? null,
+            // @ts-expect-error relation
+            away: m.away?.name ?? null,
+            pred_home: pred?.pred_home ?? null,
+            pred_away: pred?.pred_away ?? null,
+          };
+        })
+      );
 
       const tournamentDone =
         !!tp &&
@@ -151,27 +173,51 @@ export function Dashboard() {
 
       <DeadlineCard state={deadline} />
 
-      {nextMatch && (
+      {upcomingMatches.length > 0 && (
         <section className="bg-pitch-card border border-pitch-line rounded-sm p-6">
-          <p className="text-[10px] uppercase tracking-widest text-slate-500 font-mono mb-2 flex items-center gap-2">
-            <Calendar size={12} /> {t("Next Match")}
+          <p className="text-[10px] uppercase tracking-widest text-slate-500 font-mono mb-3 flex items-center gap-2">
+            <Calendar size={12} /> {t("Next Matches")}
           </p>
-          <p className="text-white font-bold">
-            {nextMatch.home ?? t("TBD")} <span className="text-slate-500">vs</span>{" "}
-            {nextMatch.away ?? t("TBD")}
-          </p>
-          <p className="text-slate-400 text-xs font-mono mt-1">
-            {new Date(nextMatch.kickoff).toLocaleString()} ·{" "}
-            {nextMatch.stage === "group"
-              ? `${t("Group")} ${nextMatch.group_code}`
-              : stageName(nextMatch.stage)}
-          </p>
-          <Link
-            href={`/matches/${nextMatch.id}`}
-            className="mt-4 inline-block bg-brand-sky hover:bg-sky-500 text-pitch-bg font-bold uppercase text-xs px-4 py-2 rounded-sm"
-          >
-            {t("Enter Prediction")}
-          </Link>
+          <ul className="space-y-2">
+            {upcomingMatches.map((m) => {
+              const hasPred = m.pred_home != null && m.pred_away != null;
+              return (
+                <li key={m.id}>
+                  <Link
+                    href={`/matches/${m.id}`}
+                    className={`flex items-center gap-3 bg-pitch-bg border rounded-sm px-3 py-2 hover:border-brand-sky transition-colors ${
+                      hasPred
+                        ? "border-brand-grass/40"
+                        : "border-pitch-line"
+                    }`}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] uppercase tracking-widest text-slate-500 font-mono">
+                        {new Date(m.kickoff).toLocaleString()} ·{" "}
+                        {m.stage === "group"
+                          ? `${t("Group")} ${m.group_code}`
+                          : stageName(m.stage)}
+                      </p>
+                      <p className="text-sm text-white font-bold truncate">
+                        {m.home ?? t("TBD")}{" "}
+                        <span className="text-slate-500">vs</span>{" "}
+                        {m.away ?? t("TBD")}
+                      </p>
+                    </div>
+                    {hasPred ? (
+                      <span className="shrink-0 flex items-center gap-1 text-[10px] uppercase font-bold text-brand-grass bg-brand-grass/10 border border-brand-grass/40 rounded-sm px-2 py-1">
+                        <CheckCircle size={10} /> {m.pred_home}–{m.pred_away}
+                      </span>
+                    ) : (
+                      <span className="shrink-0 text-[10px] uppercase font-bold text-brand-sky border border-brand-sky rounded-sm px-2 py-1">
+                        {t("Predict")}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
         </section>
       )}
 

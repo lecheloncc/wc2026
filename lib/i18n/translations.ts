@@ -68,6 +68,8 @@ export const NL: Record<string, string> = {
   "Total Points": "Totaal punten",
   "Rank": "Positie",
   "Next Match": "Volgende wedstrijd",
+  "Next Matches": "Volgende wedstrijden",
+  "Predict": "Voorspel",
   "Enter Prediction": "Voorspelling invoeren",
   "All Matches": "Alle wedstrijden",
   "Group Order": "Groepsvolgorde",
