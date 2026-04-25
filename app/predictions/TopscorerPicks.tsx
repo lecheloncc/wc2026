@@ -9,6 +9,7 @@ export type Player = {
   name: string;
   team_name: string;
   team_flag: string | null;
+  team_code: string | null;
 };
 
 export function TopscorerPicks({
@@ -78,7 +79,9 @@ export function TopscorerPicks({
               key={p.id}
               className="flex items-center gap-2 bg-pitch-bg border border-pitch-line rounded-sm px-3 py-2"
             >
-              <span>{p.team_flag}</span>
+              <span className="font-mono text-[10px] uppercase text-slate-500 w-9 text-center shrink-0">
+                {p.team_code ?? ""}
+              </span>
               <span className="flex-1 text-sm">{p.name}</span>
               <span className="text-xs text-slate-500">{p.team_name}</span>
               <span className="text-xs text-brand-gold font-bold">
@@ -131,7 +134,9 @@ export function TopscorerPicks({
                         : "bg-pitch-bg border border-pitch-line hover:border-brand-sky/50 disabled:opacity-30"
                     }`}
                   >
-                    <span>{p.team_flag}</span>
+                    <span className="font-mono text-[10px] uppercase text-slate-500 w-9 text-center shrink-0">
+                      {p.team_code ?? ""}
+                    </span>
                     <span className="flex-1">{p.name}</span>
                     <span className="text-xs text-slate-500">{p.team_name}</span>
                   </button>

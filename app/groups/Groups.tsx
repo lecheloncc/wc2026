@@ -7,7 +7,13 @@ import { scoreGroupOrder } from "../../lib/scoring/groups";
 import { useActiveParticipant } from "../../components/ActiveParticipant";
 import { useT } from "../../components/I18n";
 
-type Team = { id: number; name: string; group_code: string; flag_emoji: string | null };
+type Team = {
+  id: number;
+  name: string;
+  group_code: string;
+  flag_emoji: string | null;
+  fifa_code: string | null;
+};
 
 export function Groups() {
   const { activeKey, activeProfile } = useActiveParticipant();
@@ -26,7 +32,10 @@ export function Groups() {
 
       const [{ data: t }, { data: p }, { data: gr }, { data: firsts }] =
         await Promise.all([
-          supabase.from("teams").select("id,name,group_code,flag_emoji").order("group_code"),
+          supabase
+            .from("teams")
+            .select("id,name,group_code,flag_emoji,fifa_code")
+            .order("group_code"),
           supabase
             .from("group_predictions")
             .select("group_code, order_team_ids")
@@ -205,7 +214,9 @@ export function Groups() {
                         <span className="text-brand-sky font-bold text-xs w-4">
                           {idx + 1}
                         </span>
-                        <span className="text-sm">{team.flag_emoji}</span>
+                        <span className="font-mono text-[10px] uppercase text-slate-500 w-9 text-center">
+                          {team.fifa_code ?? ""}
+                        </span>
                         <span className="flex-1 text-sm">{team.name}</span>
                         {!locked && (
                           <div className="flex flex-col">

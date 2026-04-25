@@ -17,6 +17,7 @@ type Team = {
   name: string;
   group_code: string;
   flag_emoji: string | null;
+  fifa_code: string | null;
   pot: number | null;
 };
 
@@ -64,7 +65,7 @@ export function Predictions() {
       ] = await Promise.all([
         supabase
           .from("teams")
-          .select("id, name, group_code, flag_emoji, pot")
+          .select("id, name, group_code, flag_emoji, fifa_code, pot")
           .order("group_code"),
         supabase
           .from("matches")
@@ -78,7 +79,7 @@ export function Predictions() {
           .maybeSingle(),
         supabase
           .from("players")
-          .select("id, name, team:team_id(name, flag_emoji)")
+          .select("id, name, team:team_id(name, flag_emoji, fifa_code)")
           .order("name"),
         supabase
           .from("topscorer_picks")
@@ -108,6 +109,8 @@ export function Predictions() {
           team_name: p.team?.name ?? "",
           // @ts-expect-error relation
           team_flag: p.team?.flag_emoji ?? null,
+          // @ts-expect-error relation
+          team_code: p.team?.fifa_code ?? null,
         }))
       );
       setTopscorerPicks(tsMine?.player_ids ?? []);
@@ -388,7 +391,7 @@ function TeamSelect({
           <option value="">{t("— Select team —")}</option>
           {teams.map((tm) => (
             <option key={tm.id} value={tm.id}>
-              {tm.flag_emoji ? `${tm.flag_emoji} ` : ""}
+              {tm.fifa_code ? `[${tm.fifa_code}] ` : ""}
               {tm.name} ({t("Group")} {tm.group_code})
             </option>
           ))}
@@ -396,7 +399,8 @@ function TeamSelect({
       </div>
       {selected && (
         <p className="text-[11px] text-slate-500 font-mono pl-1">
-          {t("Picked:")} {selected.flag_emoji} {selected.name}
+          {t("Picked:")} {selected.fifa_code ? `[${selected.fifa_code}] ` : ""}
+          {selected.name}
         </p>
       )}
     </div>
