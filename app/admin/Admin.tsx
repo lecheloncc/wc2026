@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { computeTotals } from "../../lib/scoring/totals";
+import { deriveTournamentResults } from "../../lib/scoring/tournament";
 import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { GoalEntry } from "./GoalEntry";
 
@@ -77,19 +78,34 @@ export function Admin() {
     try {
       const [
         { data: ms },
+        { data: msFull },
         { data: mp },
         { data: gp },
         { data: gr },
         { data: tp },
         { data: pg },
+        { data: tn },
       ] = await Promise.all([
         supabase.from("matches").select("id, stage, home_score, away_score"),
+        supabase
+          .from("matches")
+          .select("stage, status, home_team_id, away_team_id, home_score, away_score"),
         supabase.from("match_predictions").select("user_email, match_id, pred_home, pred_away"),
         supabase.from("group_predictions").select("user_email, group_code, order_team_ids"),
         supabase.from("group_results").select("group_code, order_team_ids"),
         supabase.from("topscorer_picks").select("user_email, player_ids"),
         supabase.from("player_goals").select("player_id"),
+        supabase.from("tournament_picks").select("*"),
       ]);
+
+      const tournamentResults = deriveTournamentResults(msFull ?? []);
+      const tournamentPicks = (tn ?? []).map((row) => ({
+        user_email: row.user_email,
+        championTeamId: row.champion_team_id,
+        finalistATeamId: row.finalist_a_team_id,
+        finalistBTeamId: row.finalist_b_team_id,
+        darkHorseTeamId: row.dark_horse_team_id,
+      }));
 
       const goalsByPlayer: Record<number, number> = {};
       for (const g of pg ?? []) goalsByPlayer[g.player_id] = (goalsByPlayer[g.player_id] ?? 0) + 1;
@@ -109,6 +125,8 @@ export function Admin() {
         groupPredictions: gp ?? [],
         groupActuals: gr ?? [],
         topscorerPicks: tp ?? [],
+        tournamentPicks,
+        tournamentResults,
         goalsByPlayer,
         goldenBootPlayerIds: goldenBootIds,
       });
@@ -120,6 +138,7 @@ export function Admin() {
             match_points: t.matchPoints,
             group_points: t.groupPoints,
             topscorer_points: t.topscorerPoints,
+            tournament_points: t.tournamentPoints,
             total: t.total,
             updated_at: new Date().toISOString(),
           }))

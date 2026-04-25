@@ -1,12 +1,18 @@
 import { scoreMatch, type Stage } from "./match";
 import { scoreGroupOrder } from "./groups";
 import { scoreTopscorerPicks } from "./topscorer";
+import {
+  scoreTournamentPicks,
+  type TournamentPicks,
+  type TournamentResults,
+} from "./tournament";
 
 export type UserTotals = {
   email: string;
   matchPoints: number;
   groupPoints: number;
   topscorerPoints: number;
+  tournamentPoints: number;
   total: number;
 };
 
@@ -29,6 +35,7 @@ export type GroupPredictionRow = {
 };
 export type GroupActual = { group_code: string; order_team_ids: number[] };
 export type TopscorerRow = { user_email: string; player_ids: number[] };
+export type TournamentPickRow = TournamentPicks & { user_email: string };
 
 export function computeTotals(args: {
   matches: MatchRow[];
@@ -36,6 +43,8 @@ export function computeTotals(args: {
   groupPredictions: GroupPredictionRow[];
   groupActuals: GroupActual[];
   topscorerPicks: TopscorerRow[];
+  tournamentPicks: TournamentPickRow[];
+  tournamentResults: TournamentResults;
   goalsByPlayer: Record<number, number>;
   goldenBootPlayerIds: number[];
 }): UserTotals[] {
@@ -48,6 +57,7 @@ export function computeTotals(args: {
         matchPoints: 0,
         groupPoints: 0,
         topscorerPoints: 0,
+        tournamentPoints: 0,
         total: 0,
       };
       byEmail.set(email, u);
@@ -60,6 +70,7 @@ export function computeTotals(args: {
   for (const p of args.matchPredictions) ensure(p.user_email);
   for (const g of args.groupPredictions) ensure(g.user_email);
   for (const t of args.topscorerPicks) ensure(t.user_email);
+  for (const tp of args.tournamentPicks) ensure(tp.user_email);
 
   const matchById = new Map(args.matches.map((m) => [m.id, m]));
   for (const p of args.matchPredictions) {
@@ -88,8 +99,22 @@ export function computeTotals(args: {
     ensure(t.user_email).topscorerPoints += b.total;
   }
 
+  for (const tp of args.tournamentPicks) {
+    const b = scoreTournamentPicks(
+      {
+        championTeamId: tp.championTeamId,
+        finalistATeamId: tp.finalistATeamId,
+        finalistBTeamId: tp.finalistBTeamId,
+        darkHorseTeamId: tp.darkHorseTeamId,
+      },
+      args.tournamentResults
+    );
+    ensure(tp.user_email).tournamentPoints += b.total;
+  }
+
   for (const u of byEmail.values()) {
-    u.total = u.matchPoints + u.groupPoints + u.topscorerPoints;
+    u.total =
+      u.matchPoints + u.groupPoints + u.topscorerPoints + u.tournamentPoints;
   }
   return [...byEmail.values()].sort((a, b) => b.total - a.total);
 }

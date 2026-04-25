@@ -9,8 +9,11 @@ type Row = {
   match_points: number;
   group_points: number;
   topscorer_points: number;
+  tournament_points: number;
   total: number;
 };
+
+const COLS = "grid-cols-[36px_1fr_50px_50px_50px_50px_60px]";
 
 export function Leaderboard() {
   const [rows, setRows] = useState<Row[]>([]);
@@ -24,7 +27,12 @@ export function Leaderboard() {
         .from("leaderboard_cache")
         .select("*")
         .order("total", { ascending: false });
-      setRows(data ?? []);
+      setRows(
+        (data ?? []).map((r) => ({
+          ...r,
+          tournament_points: r.tournament_points ?? 0,
+        }))
+      );
     })();
   }, []);
 
@@ -34,12 +42,15 @@ export function Leaderboard() {
         Leaderboard
       </h1>
       <div className="bg-pitch-card border border-pitch-line rounded-sm overflow-hidden">
-        <div className="grid grid-cols-[40px_1fr_60px_60px_60px_60px] text-[10px] uppercase tracking-widest font-mono text-slate-500 border-b border-pitch-line px-3 py-2">
+        <div
+          className={`grid ${COLS} text-[10px] uppercase tracking-widest font-mono text-slate-500 border-b border-pitch-line px-3 py-2`}
+        >
           <span>#</span>
           <span>Player</span>
           <span className="text-right">Match</span>
           <span className="text-right">Group</span>
           <span className="text-right">Scorer</span>
+          <span className="text-right">Bonus</span>
           <span className="text-right">Total</span>
         </div>
         {rows.length === 0 && (
@@ -52,7 +63,7 @@ export function Leaderboard() {
           return (
             <div
               key={r.user_email}
-              className={`grid grid-cols-[40px_1fr_60px_60px_60px_60px] items-center px-3 py-2 text-sm border-b border-pitch-line/50 ${
+              className={`grid ${COLS} items-center px-3 py-2 text-sm border-b border-pitch-line/50 ${
                 isMe ? "bg-brand-sky/10" : ""
               }`}
             >
@@ -64,6 +75,7 @@ export function Leaderboard() {
               <span className="text-right font-mono text-xs">{r.match_points}</span>
               <span className="text-right font-mono text-xs">{r.group_points}</span>
               <span className="text-right font-mono text-xs">{r.topscorer_points}</span>
+              <span className="text-right font-mono text-xs">{r.tournament_points}</span>
               <span className="text-right font-bold">{r.total}</span>
             </div>
           );
