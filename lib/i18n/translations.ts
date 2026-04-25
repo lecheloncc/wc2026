@@ -165,8 +165,8 @@ export const NL: Record<string, string> = {
 
   // Leaderboard
   "Player": "Speler",
-  "Match": "Wedstrijd",
-  "Scorer": "Topscoorder",
+  "Match": "Wedstr.",
+  "Scorer": "Top",
   "Bonus": "Bonus",
   "No scores yet. Come back after the opening match!":
     "Nog geen punten. Kom terug na de openingswedstrijd!",
