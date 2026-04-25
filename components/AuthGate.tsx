@@ -12,6 +12,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { BrandHeader } from "./BrandHeader";
+import { useT } from "./I18n";
 
 export default function AuthGate({
   defaultMode = "login",
@@ -20,6 +21,7 @@ export default function AuthGate({
   defaultMode?: "login" | "signup";
   onBack?: () => void;
 }) {
+  const { t } = useT();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -82,7 +84,7 @@ export default function AuthGate({
           }}
           className="absolute top-6 left-6 flex items-center gap-2 text-slate-500 hover:text-white transition-colors uppercase text-xs font-bold tracking-widest"
         >
-          <ArrowLeft size={16} /> Back to Login
+          <ArrowLeft size={16} /> {t("Back to Login")}
         </button>
 
         <div className="mb-8 scale-125">
@@ -92,10 +94,10 @@ export default function AuthGate({
         <div className="w-full max-w-md bg-pitch-card border border-pitch-line rounded-sm shadow-2xl p-8 animate-fade-in-up">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter">
-              Reset Password
+              {t("Reset Password")}
             </h2>
             <p className="text-slate-400 text-xs font-mono mt-2 uppercase tracking-wide">
-              We&apos;ll send you a recovery link
+              {t("We'll send you a recovery link")}
             </p>
           </div>
 
@@ -103,10 +105,10 @@ export default function AuthGate({
             <div className="p-6 bg-brand-grass/10 border border-brand-grass/50 rounded-sm text-center">
               <CheckCircle className="text-brand-grass mx-auto mb-3" size={32} />
               <h3 className="text-white font-bold uppercase mb-2">
-                Check Your Email
+                {t("Check Your Email")}
               </h3>
               <p className="text-slate-400 text-xs font-mono">
-                We&apos;ve sent a password reset link to{" "}
+                {t("We've sent a password reset link to")}{" "}
                 <span className="text-brand-grass">{email}</span>.
               </p>
             </div>
@@ -130,7 +132,7 @@ export default function AuthGate({
                     <Loader2 size={18} className="animate-spin" />
                   ) : (
                     <>
-                      Send Reset Link
+                      {t("Send Reset Link")}
                       <ArrowRight
                         size={16}
                         className="group-hover:translate-x-1 transition-transform"
@@ -153,7 +155,7 @@ export default function AuthGate({
           onClick={onBack}
           className="absolute top-6 left-6 flex items-center gap-2 text-slate-500 hover:text-white transition-colors uppercase text-xs font-bold tracking-widest"
         >
-          <ArrowLeft size={16} /> Back
+          <ArrowLeft size={16} /> {t("Back")}
         </button>
       )}
 
@@ -164,10 +166,10 @@ export default function AuthGate({
       <div className="w-full max-w-md bg-pitch-card border border-pitch-line rounded-sm shadow-2xl p-8 animate-fade-in-up">
         <div className="text-center mb-8">
           <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter">
-            {isSignUp ? "Join the Tournament" : "Coach Login"}
+            {isSignUp ? t("Join the Tournament") : t("Coach Login")}
           </h2>
           <p className="text-slate-400 text-xs font-mono mt-2 uppercase tracking-wide">
-            {isSignUp ? "Create your account" : "Back to the dugout"}
+            {isSignUp ? t("Create your account") : t("Back to the dugout")}
           </p>
         </div>
 
@@ -184,7 +186,7 @@ export default function AuthGate({
           <div className="space-y-1">
             <div className="flex justify-between items-center">
               <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest ml-1">
-                Password
+                {t("Password")}
               </label>
               {!isSignUp && (
                 <button
@@ -195,7 +197,7 @@ export default function AuthGate({
                   }}
                   className="text-[10px] text-brand-sky hover:text-sky-300 font-mono uppercase tracking-wide transition-colors"
                 >
-                  Forgot Password?
+                  {t("Forgot Password?")}
                 </button>
               )}
             </div>
@@ -222,7 +224,7 @@ export default function AuthGate({
               <Loader2 size={18} className="animate-spin" />
             ) : (
               <>
-                {isSignUp ? "Create Account" : "Enter Dashboard"}
+                {isSignUp ? t("Create Account") : t("Enter Dashboard")}
                 <ArrowRight
                   size={16}
                   className="group-hover:translate-x-1 transition-transform"
@@ -241,8 +243,8 @@ export default function AuthGate({
             className="text-xs text-slate-500 hover:text-brand-sky font-mono uppercase tracking-wide transition-colors underline underline-offset-4"
           >
             {isSignUp
-              ? "Already have an account? Log In"
-              : "New here? Create an account"}
+              ? t("Already have an account? Log In")
+              : t("New here? Create an account")}
           </button>
         </div>
       </div>
@@ -257,10 +259,11 @@ function EmailField({
   email: string;
   setEmail: (s: string) => void;
 }) {
+  const { t } = useT();
   return (
     <div className="space-y-1">
       <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest ml-1">
-        Email Address
+        {t("Email Address")}
       </label>
       <div className="relative">
         <Mail className="absolute left-3 top-3 text-slate-500" size={16} />

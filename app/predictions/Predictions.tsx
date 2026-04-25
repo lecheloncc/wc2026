@@ -10,6 +10,7 @@ import {
 } from "../../lib/scoring/tournament";
 import { TopscorerPicks, type Player } from "./TopscorerPicks";
 import { useActiveParticipant } from "../../components/ActiveParticipant";
+import { useT } from "../../components/I18n";
 
 type Team = {
   id: number;
@@ -30,6 +31,7 @@ type MatchRow = {
 
 export function Predictions() {
   const { activeKey, activeProfile } = useActiveParticipant();
+  const { t } = useT();
   const [teams, setTeams] = useState<Team[]>([]);
   const [matches, setMatches] = useState<MatchRow[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -179,7 +181,8 @@ export function Predictions() {
     }
   }
 
-  if (loading) return <p className="text-slate-500 text-xs uppercase">Loading…</p>;
+  if (loading)
+    return <p className="text-slate-500 text-xs uppercase">{t("Loading…")}</p>;
 
   const finalistAOptions = allTeams.filter((t) => t.id !== picks.finalistBTeamId);
   const finalistBOptions = allTeams.filter((t) => t.id !== picks.finalistATeamId);
@@ -190,23 +193,26 @@ export function Predictions() {
     <div className="space-y-6 max-w-2xl mx-auto">
       <header>
         <h1 className="text-xl font-black italic uppercase tracking-tighter">
-          Predictions
+          {t("Predictions")}
         </h1>
         <p className="text-xs text-slate-400 mt-1">
-          Pre-tournament picks: champion, finalists, dark horse, topscorers. Locks at the
-          opening match. Up to <b>95 pts</b> on the line — plus the topscorer stream.
+          {t(
+            "Pre-tournament picks: champion, finalists, dark horse, topscorers. Locks at the opening match. Up to"
+          )}{" "}
+          <b>95</b> {t("pts on the line — plus the topscorer stream.")}
         </p>
         {activeProfile && (
           <p className="text-[10px] text-slate-500 font-mono mt-2">
-            Saving as <span className="text-brand-sky">{activeProfile.display_name}</span>
+            {t("Saving as")}{" "}
+            <span className="text-brand-sky">{activeProfile.display_name}</span>
           </p>
         )}
       </header>
 
       <PickSection
         icon={<Crown size={16} className="text-brand-gold" />}
-        title="Champion"
-        subtitle="30 pts if your pick lifts the trophy"
+        title={t("Champion")}
+        subtitle={t("30 pts if your pick lifts the trophy")}
         teams={allTeams}
         value={picks.championTeamId}
         onChange={(id) => setPicks((p) => ({ ...p, championTeamId: id }))}
@@ -218,16 +224,15 @@ export function Predictions() {
         <div className="flex items-center gap-2 mb-2">
           <Trophy size={16} className="text-brand-sky" />
           <h2 className="text-sm font-black uppercase tracking-widest text-brand-sky">
-            Finalists
+            {t("Finalists")}
           </h2>
         </div>
         <p className="text-[11px] text-slate-500 font-mono mb-3">
-          10 pts per correct team · +10 bonus if both right (max 30). Order doesn&apos;t
-          matter.
+          {t("10 pts per correct team · +10 bonus if both right (max 30). Order doesn't matter.")}
         </p>
         <div className="grid sm:grid-cols-2 gap-3">
           <TeamSelect
-            label="Finalist A"
+            label={t("Finalist A")}
             teams={finalistAOptions}
             value={picks.finalistATeamId}
             onChange={(id) => setPicks((p) => ({ ...p, finalistATeamId: id }))}
@@ -235,7 +240,7 @@ export function Predictions() {
             teamById={teamById}
           />
           <TeamSelect
-            label="Finalist B"
+            label={t("Finalist B")}
             teams={finalistBOptions}
             value={picks.finalistBTeamId}
             onChange={(id) => setPicks((p) => ({ ...p, finalistBTeamId: id }))}
@@ -247,8 +252,8 @@ export function Predictions() {
 
       <PickSection
         icon={<Sparkles size={16} className="text-brand-grass" />}
-        title="Dark Horse"
-        subtitle="One Pot 3 / Pot 4 team. R16 = 10 · QF = +10 · SF = +15 (max 35)"
+        title={t("Dark Horse")}
+        subtitle={t("One Pot 3 / Pot 4 team. R16 = 10 · QF = +10 · SF = +15 (max 35)")}
         teams={darkHorseTeams}
         value={picks.darkHorseTeamId}
         onChange={(id) => setPicks((p) => ({ ...p, darkHorseTeamId: id }))}
@@ -267,7 +272,7 @@ export function Predictions() {
       <div className="bg-pitch-card border border-pitch-line rounded-sm p-5">
         {locked ? (
           <p className="text-xs text-slate-500 flex items-center gap-2">
-            <Lock size={12} /> Picks locked at tournament kickoff
+            <Lock size={12} /> {t("Picks locked at tournament kickoff")}
           </p>
         ) : (
           <>
@@ -276,30 +281,35 @@ export function Predictions() {
               disabled={saving || nothingComplete}
               className="w-full bg-brand-sky hover:bg-sky-500 text-pitch-bg font-bold uppercase py-3 rounded-sm disabled:opacity-40"
             >
-              {saved ? "Saved!" : saving ? "Saving…" : "Save Picks"}
+              {saved
+                ? t("Saved!")
+                : saving
+                ? t("Saving…")
+                : t("Save Picks")}
             </button>
             <p className="mt-2 text-[10px] text-slate-500 font-mono text-center">
-              Saves all completed sections (Champion · Finalists · Dark Horse · Topscorer).
-              Sections that aren&apos;t fully filled in are skipped.
+              {t(
+                "Saves all completed sections (Champion · Finalists · Dark Horse · Topscorer). Sections that aren't fully filled in are skipped."
+              )}
             </p>
           </>
         )}
         {saveError && (
           <p className="mt-3 text-xs text-red-300 font-mono bg-red-900/20 border border-red-500/40 rounded-sm p-3">
-            Save failed: {saveError}
+            {t("Save failed:")} {saveError}
           </p>
         )}
 
         {tournamentFinished && (
           <div className="mt-4 pt-4 border-t border-pitch-line text-xs font-mono space-y-1">
             <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">
-              Your bonus score
+              {t("Your bonus score")}
             </p>
-            <Row k="Champion" v={breakdown.championPts} />
-            <Row k="Finalists" v={breakdown.finalistPts} />
-            <Row k="Both finalists bonus" v={breakdown.finalistBonus} />
-            <Row k="Dark Horse" v={breakdown.darkHorsePts} />
-            <Row k="Total" v={breakdown.total} bold />
+            <Row k={t("Champion")} v={breakdown.championPts} />
+            <Row k={t("Finalists")} v={breakdown.finalistPts} />
+            <Row k={t("Both finalists bonus")} v={breakdown.finalistBonus} />
+            <Row k={t("Dark Horse")} v={breakdown.darkHorsePts} />
+            <Row k={t("Total")} v={breakdown.total} bold />
           </div>
         )}
       </div>
@@ -359,6 +369,7 @@ function TeamSelect({
   disabled: boolean;
   teamById: Map<number, Team>;
 }) {
+  const { t } = useT();
   const selected = value != null ? teamById.get(value) : null;
   return (
     <div className="space-y-1">
@@ -374,18 +385,18 @@ function TeamSelect({
           onChange={(e) => onChange(e.target.value ? Number(e.target.value) : null)}
           className="w-full bg-pitch-bg border border-pitch-line rounded-sm py-2.5 pl-3 pr-4 text-sm appearance-none disabled:opacity-60"
         >
-          <option value="">— Select team —</option>
-          {teams.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.flag_emoji ? `${t.flag_emoji} ` : ""}
-              {t.name} (Group {t.group_code})
+          <option value="">{t("— Select team —")}</option>
+          {teams.map((tm) => (
+            <option key={tm.id} value={tm.id}>
+              {tm.flag_emoji ? `${tm.flag_emoji} ` : ""}
+              {tm.name} ({t("Group")} {tm.group_code})
             </option>
           ))}
         </select>
       </div>
       {selected && (
         <p className="text-[11px] text-slate-500 font-mono pl-1">
-          Picked: {selected.flag_emoji} {selected.name}
+          {t("Picked:")} {selected.flag_emoji} {selected.name}
         </p>
       )}
     </div>

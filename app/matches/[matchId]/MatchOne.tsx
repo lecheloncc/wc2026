@@ -6,6 +6,7 @@ import { supabase } from "../../../lib/supabase";
 import { scoreMatch, type Stage } from "../../../lib/scoring/match";
 import { Lock, CheckCircle } from "lucide-react";
 import { useActiveParticipant } from "../../../components/ActiveParticipant";
+import { useT } from "../../../components/I18n";
 
 type Match = {
   id: number;
@@ -21,6 +22,7 @@ type Match = {
 export function MatchOne({ matchId }: { matchId: number }) {
   const router = useRouter();
   const { activeKey, activeProfile } = useActiveParticipant();
+  const { t } = useT();
   const [match, setMatch] = useState<Match | null>(null);
   const [predHome, setPredHome] = useState<number>(0);
   const [predAway, setPredAway] = useState<number>(0);
@@ -71,7 +73,7 @@ export function MatchOne({ matchId }: { matchId: number }) {
     })();
   }, [matchId, activeKey]);
 
-  if (loading || !match) return <p className="text-slate-500 text-xs">Loading…</p>;
+  if (loading || !match) return <p className="text-slate-500 text-xs">{t("Loading…")}</p>;
 
   const locked = new Date(match.kickoff).getTime() <= Date.now();
   const hasActual = match.home_score != null && match.away_score != null;
@@ -103,16 +105,16 @@ export function MatchOne({ matchId }: { matchId: number }) {
     <div className="max-w-md mx-auto space-y-6">
       <div className="text-center">
         <p className="text-[10px] uppercase tracking-widest text-slate-500 font-mono">
-          {match.stage === "group" ? `Group ${match.group_code}` : match.stage} ·{" "}
+          {match.stage === "group" ? `${t("Group")} ${match.group_code}` : match.stage} ·{" "}
           {new Date(match.kickoff).toLocaleString()}
         </p>
         <h1 className="text-2xl font-black italic uppercase tracking-tighter text-white mt-2">
-          {match.home_name ?? "TBD"} <span className="text-slate-500">vs</span>{" "}
-          {match.away_name ?? "TBD"}
+          {match.home_name ?? t("TBD")} <span className="text-slate-500">vs</span>{" "}
+          {match.away_name ?? t("TBD")}
         </h1>
         {activeProfile && (
           <p className="text-[10px] text-slate-500 font-mono mt-2">
-            Saving as {activeProfile.display_name}
+            {t("Saving as")} {activeProfile.display_name}
           </p>
         )}
       </div>
@@ -120,14 +122,14 @@ export function MatchOne({ matchId }: { matchId: number }) {
       <div className="bg-pitch-card border border-pitch-line rounded-sm p-6">
         <div className="flex items-center justify-center gap-4">
           <ScoreInput
-            label={match.home_name ?? "Home"}
+            label={match.home_name ?? t("Home")}
             value={predHome}
             onChange={setPredHome}
             disabled={locked}
           />
           <span className="text-slate-500 text-xl font-mono">–</span>
           <ScoreInput
-            label={match.away_name ?? "Away"}
+            label={match.away_name ?? t("Away")}
             value={predAway}
             onChange={setPredAway}
             disabled={locked}
@@ -136,7 +138,7 @@ export function MatchOne({ matchId }: { matchId: number }) {
 
         {locked ? (
           <p className="mt-6 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
-            <Lock size={12} /> Locked at kickoff
+            <Lock size={12} /> {t("Locked at kickoff")}
           </p>
         ) : (
           <>
@@ -145,11 +147,15 @@ export function MatchOne({ matchId }: { matchId: number }) {
               disabled={saving}
               className="mt-6 w-full bg-brand-sky hover:bg-sky-500 text-pitch-bg font-bold uppercase py-3 rounded-sm disabled:opacity-50"
             >
-              {saved ? "Saved!" : saving ? "Saving…" : "Save Prediction"}
+              {saved
+                ? t("Saved!")
+                : saving
+                ? t("Saving…")
+                : t("Save Prediction")}
             </button>
             {saveError && (
               <p className="mt-3 text-xs text-red-400 font-mono bg-red-900/20 border border-red-500/40 rounded-sm p-3">
-                Save failed: {saveError}
+                {t("Save failed:")} {saveError}
               </p>
             )}
           </>
@@ -158,21 +164,21 @@ export function MatchOne({ matchId }: { matchId: number }) {
         {hasActual && breakdown && (
           <div className="mt-6 pt-4 border-t border-pitch-line">
             <p className="text-[10px] uppercase tracking-widest text-slate-500 font-mono mb-2">
-              Result: {match.home_score}–{match.away_score}
+              {t("Result:")} {match.home_score}–{match.away_score}
             </p>
             <div className="text-xs font-mono text-slate-300 space-y-1">
-              <Row k="Correct outcome" v={breakdown.outcome} />
-              <Row k="Goal difference" v={breakdown.goalDiff} />
-              <Row k="One side exact" v={breakdown.oneSide} />
-              <Row k="Exact bonus" v={breakdown.exactBonus} />
+              <Row k={t("Correct outcome")} v={breakdown.outcome} />
+              <Row k={t("Goal difference")} v={breakdown.goalDiff} />
+              <Row k={t("One side exact")} v={breakdown.oneSide} />
+              <Row k={t("Exact bonus")} v={breakdown.exactBonus} />
               {breakdown.multiplier !== 1 && (
                 <Row k={`× ${breakdown.multiplier} (${match.stage})`} v={""} />
               )}
-              <Row k="Total" v={breakdown.total} bold />
+              <Row k={t("Total")} v={breakdown.total} bold />
             </div>
             {breakdown.exact && (
               <p className="mt-3 text-brand-gold text-xs flex items-center gap-2">
-                <CheckCircle size={14} /> Perfect score!
+                <CheckCircle size={14} /> {t("Perfect score!")}
               </p>
             )}
           </div>

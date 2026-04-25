@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "../lib/supabase";
 import { useActiveParticipant } from "../components/ActiveParticipant";
+import { useT } from "../components/I18n";
 import {
   Calendar,
   Target,
@@ -32,6 +33,7 @@ type DeadlineState = {
 
 export function Dashboard() {
   const { activeKey, activeProfile } = useActiveParticipant();
+  const { t } = useT();
   const [totals, setTotals] = useState<{ total: number; rank: number | null }>({
     total: 0,
     rank: null,
@@ -136,14 +138,14 @@ export function Dashboard() {
     <div className="space-y-6">
       <section className="bg-pitch-card border border-pitch-line rounded-sm p-6">
         <p className="text-[10px] uppercase tracking-widest text-slate-500 font-mono mb-1">
-          Welcome back
+          {t("Welcome back")}
         </p>
         <h1 className="text-2xl font-black italic uppercase tracking-tighter text-white">
           {displayName}
         </h1>
         <div className="mt-4 grid grid-cols-2 gap-4">
-          <Stat label="Total Points" value={totals.total} />
-          <Stat label="Rank" value={totals.rank ?? "—"} />
+          <Stat label={t("Total Points")} value={totals.total} />
+          <Stat label={t("Rank")} value={totals.rank ?? "—"} />
         </div>
       </section>
 
@@ -152,38 +154,39 @@ export function Dashboard() {
       {nextMatch && (
         <section className="bg-pitch-card border border-pitch-line rounded-sm p-6">
           <p className="text-[10px] uppercase tracking-widest text-slate-500 font-mono mb-2 flex items-center gap-2">
-            <Calendar size={12} /> Next Match
+            <Calendar size={12} /> {t("Next Match")}
           </p>
           <p className="text-white font-bold">
-            {nextMatch.home ?? "TBD"} <span className="text-slate-500">vs</span>{" "}
-            {nextMatch.away ?? "TBD"}
+            {nextMatch.home ?? t("TBD")} <span className="text-slate-500">vs</span>{" "}
+            {nextMatch.away ?? t("TBD")}
           </p>
           <p className="text-slate-400 text-xs font-mono mt-1">
             {new Date(nextMatch.kickoff).toLocaleString()} ·{" "}
             {nextMatch.stage === "group"
-              ? `Group ${nextMatch.group_code}`
+              ? `${t("Group")} ${nextMatch.group_code}`
               : nextMatch.stage}
           </p>
           <Link
             href={`/matches/${nextMatch.id}`}
             className="mt-4 inline-block bg-brand-sky hover:bg-sky-500 text-pitch-bg font-bold uppercase text-xs px-4 py-2 rounded-sm"
           >
-            Enter Prediction
+            {t("Enter Prediction")}
           </Link>
         </section>
       )}
 
       <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <QuickCard href="/matches" icon={<Target size={16} />} label="All Matches" />
-        <QuickCard href="/groups" icon={<Users size={16} />} label="Group Order" />
-        <QuickCard href="/predictions" icon={<Crown size={16} />} label="Predictions" />
-        <QuickCard href="/leaderboard" icon={<Trophy size={16} />} label="Leaderboard" />
+        <QuickCard href="/matches" icon={<Target size={16} />} label={t("All Matches")} />
+        <QuickCard href="/groups" icon={<Users size={16} />} label={t("Group Order")} />
+        <QuickCard href="/predictions" icon={<Crown size={16} />} label={t("Predictions")} />
+        <QuickCard href="/leaderboard" icon={<Trophy size={16} />} label={t("Leaderboard")} />
       </section>
     </div>
   );
 }
 
 function DeadlineCard({ state }: { state: DeadlineState }) {
+  const { t } = useT();
   if (!state.openingKickoff) return null;
   const opening = new Date(state.openingKickoff);
   const ms = opening.getTime() - Date.now();
@@ -192,38 +195,38 @@ function DeadlineCard({ state }: { state: DeadlineState }) {
   return (
     <section className="bg-pitch-card border border-pitch-line rounded-sm p-6">
       <p className="text-[10px] uppercase tracking-widest text-slate-500 font-mono mb-2 flex items-center gap-2">
-        <Clock size={12} /> Pre-tournament Deadline
+        <Clock size={12} /> {t("Pre-tournament Deadline")}
       </p>
       <p className="text-white font-bold">
         {locked ? (
-          <>Locked — tournament has started</>
+          <>{t("Locked — tournament has started")}</>
         ) : (
           <>
             <span className="text-brand-sky">{formatCountdown(ms)}</span>{" "}
-            <span className="text-slate-400 font-normal">left</span>
+            <span className="text-slate-400 font-normal">{t("left")}</span>
           </>
         )}
       </p>
       <p className="text-slate-400 text-xs font-mono mt-1">
-        Opening kickoff: {opening.toLocaleString()}
+        {t("Opening kickoff")}: {opening.toLocaleString()}
       </p>
 
       <div className="mt-4 grid sm:grid-cols-3 gap-2">
         <DeadlineLink
           href="/groups"
-          label="Group Order"
+          label={t("Group Order")}
           done={state.hasGroupPicks}
           locked={locked}
         />
         <DeadlineLink
           href="/predictions"
-          label="Champion / Finalists / Dark Horse"
+          label={t("Champion / Finalists / Dark Horse")}
           done={state.hasTournamentPicks}
           locked={locked}
         />
         <DeadlineLink
           href="/predictions"
-          label="Topscorer Picks"
+          label={t("Topscorer Picks")}
           done={state.hasTopscorerPicks}
           locked={locked}
         />

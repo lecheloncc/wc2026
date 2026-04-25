@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { Lock } from "lucide-react";
 import { useActiveParticipant } from "../../components/ActiveParticipant";
+import { useT } from "../../components/I18n";
 
 type KnockoutMatch = {
   id: number;
@@ -25,6 +26,7 @@ export function Bracket() {
   const [matches, setMatches] = useState<KnockoutMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const { activeKey } = useActiveParticipant();
+  const { t } = useT();
 
   useEffect(() => {
     (async () => {
@@ -64,7 +66,7 @@ export function Bracket() {
     })();
   }, [activeKey]);
 
-  if (loading) return <p className="text-slate-500 text-xs">Loading…</p>;
+  if (loading) return <p className="text-slate-500 text-xs">{t("Loading…")}</p>;
 
   const byStage = STAGES.map((s) => ({
     stage: s,
@@ -75,10 +77,10 @@ export function Bracket() {
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-black italic uppercase tracking-tighter">
-          Knockout Bracket
+          {t("Knockout Bracket")}
         </h1>
         <p className="text-xs text-slate-400 mt-1">
-          Scoring multipliers: R16 ×1.5 · QF ×2 · SF ×3 · 3rd/Final ×4.
+          {t("Scoring multipliers: R16 ×1.5 · QF ×2 · SF ×3 · 3rd/Final ×4.")}
         </p>
       </div>
       {byStage.map(({ stage, rows }) =>
@@ -101,15 +103,15 @@ export function Bracket() {
                       {m.knockout_slot} · {new Date(m.kickoff).toLocaleString()}
                     </p>
                     <p className="text-sm text-white font-bold mt-1">
-                      {m.home_name ?? "TBD"}{" "}
+                      {m.home_name ?? t("TBD")}{" "}
                       <span className="text-slate-500">vs</span>{" "}
-                      {m.away_name ?? "TBD"}
+                      {m.away_name ?? t("TBD")}
                     </p>
                     <div className="mt-1 flex items-center justify-between text-xs font-mono">
                       <span className="text-brand-sky">
                         {m.pred_home != null
-                          ? `Pick ${m.pred_home}–${m.pred_away}`
-                          : "No pick"}
+                          ? `${t("Pick")} ${m.pred_home}–${m.pred_away}`
+                          : t("No pick")}
                       </span>
                       {hasActual && (
                         <span className="text-brand-gold">
@@ -118,7 +120,7 @@ export function Bracket() {
                       )}
                       {locked && !hasActual && (
                         <span className="text-slate-500 flex items-center gap-1">
-                          <Lock size={10} /> locked
+                          <Lock size={10} /> {t("locked")}
                         </span>
                       )}
                     </div>

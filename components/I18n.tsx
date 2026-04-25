@@ -1,0 +1,64 @@
+"use client";
+
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { tFor, type Lang } from "../lib/i18n/translations";
+
+const STORAGE_KEY = "wc26.lang";
+const DEFAULT_LANG: Lang = "nl";
+
+type Ctx = {
+  lang: Lang;
+  setLang: (l: Lang) => void;
+  t: (key: string) => string;
+};
+
+const I18nCtx = createContext<Ctx | null>(null);
+
+function readStored(): Lang {
+  if (typeof window === "undefined") return DEFAULT_LANG;
+  try {
+    const v = window.localStorage.getItem(STORAGE_KEY);
+    return v === "en" || v === "nl" ? v : DEFAULT_LANG;
+  } catch {
+    return DEFAULT_LANG;
+  }
+}
+
+export function I18nProvider({ children }: { children: React.ReactNode }) {
+  const [lang, setLangState] = useState<Lang>(DEFAULT_LANG);
+
+  useEffect(() => {
+    setLangState(readStored());
+  }, []);
+
+  const setLang = (l: Lang) => {
+    setLangState(l);
+    try {
+      window.localStorage.setItem(STORAGE_KEY, l);
+    } catch {}
+  };
+
+  const value = useMemo<Ctx>(
+    () => ({
+      lang,
+      setLang,
+      t: (key: string) => tFor(lang, key),
+    }),
+    [lang]
+  );
+
+  return <I18nCtx.Provider value={value}>{children}</I18nCtx.Provider>;
+}
+
+export function useT() {
+  const ctx = useContext(I18nCtx);
+  if (!ctx) {
+    // Render-safe fallback: return identity until provider mounts.
+    return {
+      lang: DEFAULT_LANG,
+      setLang: () => {},
+      t: (key: string) => tFor(DEFAULT_LANG, key),
+    };
+  }
+  return ctx;
+}

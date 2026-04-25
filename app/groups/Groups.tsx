@@ -5,11 +5,13 @@ import { supabase } from "../../lib/supabase";
 import { ChevronUp, ChevronDown, Lock, CheckCircle } from "lucide-react";
 import { scoreGroupOrder } from "../../lib/scoring/groups";
 import { useActiveParticipant } from "../../components/ActiveParticipant";
+import { useT } from "../../components/I18n";
 
 type Team = { id: number; name: string; group_code: string; flag_emoji: string | null };
 
 export function Groups() {
   const { activeKey, activeProfile } = useActiveParticipant();
+  const { t } = useT();
   const [teams, setTeams] = useState<Team[]>([]);
   const [predictions, setPredictions] = useState<Record<string, number[]>>({});
   const [actuals, setActuals] = useState<Record<string, number[]>>({});
@@ -105,15 +107,17 @@ export function Groups() {
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-black italic uppercase tracking-tighter">
-          Group Stage Order
+          {t("Group Stage Order")}
         </h1>
         <p className="text-xs text-slate-400 mt-1">
-          Rank 1st → 4th. 3 pts per correct slot · 5 pt bonus for a perfect group. Locks
-          at the opening match.
+          {t(
+            "Rank 1st → 4th. 3 pts per correct slot · 5 pt bonus for a perfect group. Locks at the opening match."
+          )}
         </p>
         {activeProfile && (
           <p className="text-[10px] text-slate-500 font-mono mt-2">
-            Saving as <span className="text-brand-sky">{activeProfile.display_name}</span>
+            {t("Saving as")}{" "}
+            <span className="text-brand-sky">{activeProfile.display_name}</span>
           </p>
         )}
       </div>
@@ -133,11 +137,11 @@ export function Groups() {
               >
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="text-lg font-black italic uppercase tracking-tight">
-                    Group {g}
+                    {t("Group")} {g}
                   </h2>
                   {locked && (
                     <span className="text-[10px] uppercase text-slate-500 flex items-center gap-1">
-                      <Lock size={10} /> locked
+                      <Lock size={10} /> {t("locked")}
                     </span>
                   )}
                 </div>
@@ -189,33 +193,33 @@ export function Groups() {
                     onClick={() => save(g)}
                     className="mt-3 w-full bg-brand-sky hover:bg-sky-500 text-pitch-bg font-bold uppercase py-2 text-xs rounded-sm"
                   >
-                    {savedGroup === g ? "Saved!" : "Save Order"}
+                    {savedGroup === g ? t("Saved!") : t("Save Order")}
                   </button>
                 )}
                 {errorGroup?.group === g && (
                   <p className="mt-2 text-[11px] text-red-300 font-mono bg-red-900/20 border border-red-500/40 rounded-sm p-2">
-                    Save failed: {errorGroup.msg}
+                    {t("Save failed:")} {errorGroup.msg}
                   </p>
                 )}
                 {breakdown && (
                   <div className="mt-3 pt-3 border-t border-pitch-line text-xs font-mono">
                     <div className="flex justify-between text-slate-300">
-                      <span>Correct slots</span>
+                      <span>{t("Correct slots")}</span>
                       <span>{breakdown.correctSlots}/4</span>
                     </div>
                     {breakdown.perfectBonus > 0 && (
                       <div className="flex justify-between text-brand-gold">
-                        <span>Perfect bonus</span>
+                        <span>{t("Perfect bonus")}</span>
                         <span>+{breakdown.perfectBonus}</span>
                       </div>
                     )}
                     <div className="flex justify-between text-white font-bold mt-1">
-                      <span>Total</span>
+                      <span>{t("Total")}</span>
                       <span>{breakdown.total}</span>
                     </div>
                     {breakdown.correctSlots === 4 && (
                       <p className="mt-2 text-brand-gold flex items-center gap-1">
-                        <CheckCircle size={12} /> Perfect group!
+                        <CheckCircle size={12} /> {t("Perfect group!")}
                       </p>
                     )}
                   </div>

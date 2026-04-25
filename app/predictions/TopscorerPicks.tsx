@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Search, X, Goal } from "lucide-react";
+import { useT } from "../../components/I18n";
 
 export type Player = {
   id: number;
@@ -23,6 +24,7 @@ export function TopscorerPicks({
   setPicks: (next: number[]) => void;
   locked: boolean;
 }) {
+  const { t } = useT();
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
@@ -55,18 +57,20 @@ export function TopscorerPicks({
       <div className="flex items-center gap-2 mb-2">
         <Goal size={16} className="text-brand-gold" />
         <h2 className="text-sm font-black uppercase tracking-widest text-brand-gold">
-          Topscorer Picks
+          {t("Topscorer Picks")}
         </h2>
       </div>
       <p className="text-[11px] text-slate-500 font-mono mb-3">
-        Pick <b>3 players</b>. 2 pts per goal · +10 if one of your picks wins the Golden Boot.
+        {t(
+          "Pick 3 players. 2 pts per goal · +10 if one of your picks wins the Golden Boot."
+        )}
       </p>
 
       <p className="text-[10px] uppercase tracking-widest text-slate-500 font-mono mb-2">
-        Your picks ({picks.length}/3)
+        {t("Your picks")} ({picks.length}/3)
       </p>
       {pickedPlayers.length === 0 ? (
-        <p className="text-slate-600 text-sm">No players selected yet.</p>
+        <p className="text-slate-600 text-sm">{t("No players selected yet.")}</p>
       ) : (
         <ul className="space-y-1">
           {pickedPlayers.map((p) => (
@@ -95,9 +99,9 @@ export function TopscorerPicks({
       )}
       {picks.length === 3 && (
         <p className="mt-2 text-xs text-slate-400">
-          Combined goals so far:{" "}
+          {t("Combined goals so far:")}{" "}
           <span className="text-white font-bold">{totalGoals}</span> (
-          {totalGoals * 2} pts)
+          {totalGoals * 2} {t("pts)")}
         </p>
       )}
 
@@ -109,7 +113,7 @@ export function TopscorerPicks({
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search player or team…"
+              placeholder={t("Search player or team…")}
               className="w-full bg-pitch-bg border border-pitch-line rounded-sm py-2 pl-10 pr-4 text-sm"
             />
           </div>
@@ -136,7 +140,7 @@ export function TopscorerPicks({
             })}
             {filtered.length === 0 && (
               <li className="text-xs text-slate-500 py-4 text-center">
-                No players match.
+                {t("No players match.")}
               </li>
             )}
           </ul>

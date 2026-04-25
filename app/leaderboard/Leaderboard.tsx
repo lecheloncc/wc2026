@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { Trophy } from "lucide-react";
 import { useActiveParticipant } from "../../components/ActiveParticipant";
+import { useT } from "../../components/I18n";
 
 type Row = {
   user_email: string;
@@ -21,6 +22,7 @@ const COLS = "grid-cols-[36px_1fr_50px_50px_50px_50px_60px]";
 
 export function Leaderboard() {
   const { activeKey } = useActiveParticipant();
+  const { t } = useT();
   const [rows, setRows] = useState<Row[]>([]);
 
   useEffect(() => {
@@ -61,23 +63,23 @@ export function Leaderboard() {
   return (
     <div>
       <h1 className="text-xl font-black italic uppercase tracking-tighter mb-4">
-        Leaderboard
+        {t("Leaderboard")}
       </h1>
       <div className="bg-pitch-card border border-pitch-line rounded-sm overflow-hidden">
         <div
           className={`grid ${COLS} text-[10px] uppercase tracking-widest font-mono text-slate-500 border-b border-pitch-line px-3 py-2`}
         >
           <span>#</span>
-          <span>Player</span>
-          <span className="text-right">Match</span>
-          <span className="text-right">Group</span>
-          <span className="text-right">Scorer</span>
-          <span className="text-right">Bonus</span>
-          <span className="text-right">Total</span>
+          <span>{t("Player")}</span>
+          <span className="text-right">{t("Match")}</span>
+          <span className="text-right">{t("Group")}</span>
+          <span className="text-right">{t("Scorer")}</span>
+          <span className="text-right">{t("Bonus")}</span>
+          <span className="text-right">{t("Total")}</span>
         </div>
         {rows.length === 0 && (
           <p className="text-slate-500 text-xs px-3 py-6 text-center">
-            No scores yet. Come back after the opening match!
+            {t("No scores yet. Come back after the opening match!")}
           </p>
         )}
         {rows.map((r, i) => {
