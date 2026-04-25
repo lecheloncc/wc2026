@@ -199,15 +199,17 @@ export function Tournament() {
             <Lock size={12} /> Picks locked at tournament kickoff
           </p>
         ) : (
-          <button
-            onClick={save}
-            className="w-full bg-brand-sky hover:bg-sky-500 text-pitch-bg font-bold uppercase py-3 rounded-sm"
-          >
-            {saved ? "Saved!" : "Save Champion / Finalists / Dark Horse"}
-          </button>
-          <p className="mt-2 text-[10px] text-slate-500 font-mono text-center">
-            Topscorer picks have their own Save button above.
-          </p>
+          <>
+            <button
+              onClick={save}
+              className="w-full bg-brand-sky hover:bg-sky-500 text-pitch-bg font-bold uppercase py-3 rounded-sm"
+            >
+              {saved ? "Saved!" : "Save Champion / Finalists / Dark Horse"}
+            </button>
+            <p className="mt-2 text-[10px] text-slate-500 font-mono text-center">
+              Topscorer picks have their own Save button above.
+            </p>
+          </>
         )}
         {saveError && (
           <p className="mt-3 text-xs text-red-300 font-mono bg-red-900/20 border border-red-500/40 rounded-sm p-3">
