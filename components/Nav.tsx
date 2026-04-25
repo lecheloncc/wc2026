@@ -61,7 +61,7 @@ export function Nav({ email, isAdmin }: { email: string | null; isAdmin: boolean
             </Link>
           )}
         </nav>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           {showSwitcher && (
             <div className="relative">
               <button
@@ -71,7 +71,7 @@ export function Nav({ email, isAdmin }: { email: string | null; isAdmin: boolean
                 title="Playing as"
               >
                 <User size={12} />
-                <span className="max-w-[100px] truncate">{displayName}</span>
+                <span className="max-w-[160px] truncate">{displayName}</span>
                 <ChevronDown size={12} />
               </button>
               {open && (
