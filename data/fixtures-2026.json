@@ -1,0 +1,87 @@
+{
+  "_note": "2026 FIFA World Cup — final 48-team draw (confirmed 2026-04-24). 12 groups × 4 teams. Group stage produces 72 matches; knockouts are 32 matches: R32 (16) + R16 (8) + QF (4) + SF (2) + 3rd place (1) + final (1). Kickoff times are placeholders — update in generate-fixtures.ts once FIFA publishes the final match schedule.",
+  "tournament": {
+    "name": "FIFA World Cup 2026",
+    "start": "2026-06-11",
+    "end": "2026-07-19"
+  },
+  "teams": [
+    { "group": "A", "name": "Mexico",                 "fifa": "MEX", "flag": "🇲🇽" },
+    { "group": "A", "name": "South Africa",           "fifa": "RSA", "flag": "🇿🇦" },
+    { "group": "A", "name": "South Korea",            "fifa": "KOR", "flag": "🇰🇷" },
+    { "group": "A", "name": "Czechia",                "fifa": "CZE", "flag": "🇨🇿" },
+
+    { "group": "B", "name": "Canada",                 "fifa": "CAN", "flag": "🇨🇦" },
+    { "group": "B", "name": "Bosnia and Herzegovina", "fifa": "BIH", "flag": "🇧🇦" },
+    { "group": "B", "name": "Qatar",                  "fifa": "QAT", "flag": "🇶🇦" },
+    { "group": "B", "name": "Switzerland",            "fifa": "SUI", "flag": "🇨🇭" },
+
+    { "group": "C", "name": "Brazil",                 "fifa": "BRA", "flag": "🇧🇷" },
+    { "group": "C", "name": "Morocco",                "fifa": "MAR", "flag": "🇲🇦" },
+    { "group": "C", "name": "Haiti",                  "fifa": "HAI", "flag": "🇭🇹" },
+    { "group": "C", "name": "Scotland",               "fifa": "SCO", "flag": "🏴\udb40\udc67\udb40\udc62\udb40\udc73\udb40\udc63\udb40\udc74\udb40\udc7f" },
+
+    { "group": "D", "name": "USA",                    "fifa": "USA", "flag": "🇺🇸" },
+    { "group": "D", "name": "Paraguay",               "fifa": "PAR", "flag": "🇵🇾" },
+    { "group": "D", "name": "Australia",              "fifa": "AUS", "flag": "🇦🇺" },
+    { "group": "D", "name": "Türkiye",                "fifa": "TUR", "flag": "🇹🇷" },
+
+    { "group": "E", "name": "Germany",                "fifa": "GER", "flag": "🇩🇪" },
+    { "group": "E", "name": "Curaçao",                "fifa": "CUW", "flag": "🇨🇼" },
+    { "group": "E", "name": "Ivory Coast",            "fifa": "CIV", "flag": "🇨🇮" },
+    { "group": "E", "name": "Ecuador",                "fifa": "ECU", "flag": "🇪🇨" },
+
+    { "group": "F", "name": "Netherlands",            "fifa": "NED", "flag": "🇳🇱" },
+    { "group": "F", "name": "Japan",                  "fifa": "JPN", "flag": "🇯🇵" },
+    { "group": "F", "name": "Sweden",                 "fifa": "SWE", "flag": "🇸🇪" },
+    { "group": "F", "name": "Tunisia",                "fifa": "TUN", "flag": "🇹🇳" },
+
+    { "group": "G", "name": "Belgium",                "fifa": "BEL", "flag": "🇧🇪" },
+    { "group": "G", "name": "Egypt",                  "fifa": "EGY", "flag": "🇪🇬" },
+    { "group": "G", "name": "Iran",                   "fifa": "IRN", "flag": "🇮🇷" },
+    { "group": "G", "name": "New Zealand",            "fifa": "NZL", "flag": "🇳🇿" },
+
+    { "group": "H", "name": "Spain",                  "fifa": "ESP", "flag": "🇪🇸" },
+    { "group": "H", "name": "Cape Verde",             "fifa": "CPV", "flag": "🇨🇻" },
+    { "group": "H", "name": "Saudi Arabia",           "fifa": "KSA", "flag": "🇸🇦" },
+    { "group": "H", "name": "Uruguay",                "fifa": "URU", "flag": "🇺🇾" },
+
+    { "group": "I", "name": "France",                 "fifa": "FRA", "flag": "🇫🇷" },
+    { "group": "I", "name": "Senegal",                "fifa": "SEN", "flag": "🇸🇳" },
+    { "group": "I", "name": "Iraq",                   "fifa": "IRQ", "flag": "🇮🇶" },
+    { "group": "I", "name": "Norway",                 "fifa": "NOR", "flag": "🇳🇴" },
+
+    { "group": "J", "name": "Argentina",              "fifa": "ARG", "flag": "🇦🇷" },
+    { "group": "J", "name": "Algeria",                "fifa": "ALG", "flag": "🇩🇿" },
+    { "group": "J", "name": "Austria",                "fifa": "AUT", "flag": "🇦🇹" },
+    { "group": "J", "name": "Jordan",                 "fifa": "JOR", "flag": "🇯🇴" },
+
+    { "group": "K", "name": "Portugal",               "fifa": "POR", "flag": "🇵🇹" },
+    { "group": "K", "name": "DR Congo",               "fifa": "COD", "flag": "🇨🇩" },
+    { "group": "K", "name": "Uzbekistan",             "fifa": "UZB", "flag": "🇺🇿" },
+    { "group": "K", "name": "Colombia",               "fifa": "COL", "flag": "🇨🇴" },
+
+    { "group": "L", "name": "England",                "fifa": "ENG", "flag": "🏴\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f" },
+    { "group": "L", "name": "Croatia",                "fifa": "CRO", "flag": "🇭🇷" },
+    { "group": "L", "name": "Ghana",                  "fifa": "GHA", "flag": "🇬🇭" },
+    { "group": "L", "name": "Panama",                 "fifa": "PAN", "flag": "🇵🇦" }
+  ],
+  "knockout_bracket_r32": [
+    { "slot": "R32-1",  "home_hint": "1E", "away_hint": "3?" },
+    { "slot": "R32-2",  "home_hint": "1H", "away_hint": "2J" },
+    { "slot": "R32-3",  "home_hint": "2A", "away_hint": "2B" },
+    { "slot": "R32-4",  "home_hint": "1F", "away_hint": "2C" },
+    { "slot": "R32-5",  "home_hint": "2K", "away_hint": "2L" },
+    { "slot": "R32-6",  "home_hint": "1D", "away_hint": "3?" },
+    { "slot": "R32-7",  "home_hint": "1G", "away_hint": "3?" },
+    { "slot": "R32-8",  "home_hint": "1C", "away_hint": "2F" },
+    { "slot": "R32-9",  "home_hint": "2E", "away_hint": "2I" },
+    { "slot": "R32-10", "home_hint": "1A", "away_hint": "3?" },
+    { "slot": "R32-11", "home_hint": "1L", "away_hint": "3?" },
+    { "slot": "R32-12", "home_hint": "1J", "away_hint": "2H" },
+    { "slot": "R32-13", "home_hint": "2D", "away_hint": "2G" },
+    { "slot": "R32-14", "home_hint": "1B", "away_hint": "3?" },
+    { "slot": "R32-15", "home_hint": "1K", "away_hint": "3?" },
+    { "slot": "R32-16", "home_hint": "TBD", "away_hint": "TBD" }
+  ]
+}

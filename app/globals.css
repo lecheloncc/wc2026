@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-pitch-bg: #0B1220;
+  --color-pitch-card: #141E33;
+  --color-pitch-line: #1F2A44;
+  --color-brand-sky: #00A3E0;
+  --color-brand-gold: #F2C94C;
+  --color-brand-grass: #22C55E;
+  --color-brand-red: #EF4444;
+}
+
+body {
+  background-color: var(--color-pitch-bg);
+  color: #F8FAFC;
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+h1, h2, h3, h4, button {
+  font-family: var(--font-inter);
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--color-pitch-bg); }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-brand-sky); }
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up { animation: fade-in-up 0.3s ease-out both; }
+
+@keyframes pulse-once {
+  0%   { box-shadow: 0 0 0 0 rgba(0, 163, 224, 0.7); }
+  70%  { box-shadow: 0 0 0 10px rgba(0, 163, 224, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 163, 224, 0); }
+}
+.animate-pulse-once { animation: pulse-once 0.5s ease-out; }
