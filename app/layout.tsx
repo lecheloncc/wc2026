@@ -11,9 +11,9 @@ const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 const INSTANCE_THEME = process.env.NEXT_PUBLIC_INSTANCE_THEME ?? "";
 const IS_WERK = INSTANCE_THEME === "werk";
 
-const PWA_TITLE = IS_WERK ? "WK 2026 Werk" : "WK 2026";
+const PWA_TITLE = IS_WERK ? "WC 2026" : "WK 2026";
 const APP_NAME = IS_WERK
-  ? "WK 2026 Werk — Prediction Game"
+  ? "WC 2026 — Prediction Game"
   : "WK 2026 — Prediction Game";
 
 export const metadata: Metadata = {

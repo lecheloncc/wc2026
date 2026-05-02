@@ -5,11 +5,12 @@ const IS_WERK = process.env.NEXT_PUBLIC_INSTANCE_THEME === "werk";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: IS_WERK
-      ? "WK 2026 Werk — Prediction Game"
+      ? "WC 2026 — Prediction Game"
       : "World Cup 2026 — Prediction Game",
-    short_name: IS_WERK ? "WK 2026 Werk" : "WK 2026",
-    description:
-      "Voorspel het WK 2026: wedstrijden, groepsvolgorde, topscoorders.",
+    short_name: IS_WERK ? "WC 2026" : "WK 2026",
+    description: IS_WERK
+      ? "Predict the World Cup 2026: matches, groups, topscorers."
+      : "Voorspel het WK 2026: wedstrijden, groepsvolgorde, topscoorders.",
     start_url: "/",
     scope: "/",
     display: "standalone",

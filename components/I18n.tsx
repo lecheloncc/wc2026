@@ -4,7 +4,10 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { tFor, stageLabel, type Lang } from "../lib/i18n/translations";
 
 const STORAGE_KEY = "wc26.lang";
-const DEFAULT_LANG: Lang = "nl";
+// Default language is configurable per deployment via NEXT_PUBLIC_DEFAULT_LANG.
+// Family deployment leaves it unset → "nl". Work deployment sets it to "en".
+const DEFAULT_LANG: Lang =
+  process.env.NEXT_PUBLIC_DEFAULT_LANG === "en" ? "en" : "nl";
 
 type Ctx = {
   lang: Lang;
