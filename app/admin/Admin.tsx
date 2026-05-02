@@ -6,6 +6,8 @@ import { computeTotals } from "../../lib/scoring/totals";
 import { deriveTournamentResults } from "../../lib/scoring/tournament";
 import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { GoalEntry } from "./GoalEntry";
+import { Participants } from "./Participants";
+import { isWerk } from "../../lib/work-tags";
 
 const ADMIN_EMAIL = (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "").toLowerCase();
 
@@ -211,6 +213,8 @@ export function Admin() {
           {msg}
         </p>
       )}
+
+      {isWerk() && <Participants />}
 
       <GoalEntry matches={matches} />
 
