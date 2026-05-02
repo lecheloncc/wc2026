@@ -147,7 +147,7 @@ export function MatchOne({ matchId }: { matchId: number }) {
             <button
               onClick={save}
               disabled={saving}
-              className="mt-6 w-full bg-brand-sky hover:bg-sky-500 text-pitch-bg font-bold uppercase py-3 rounded-sm disabled:opacity-50"
+              className="mt-6 w-full bg-brand-sky hover:brightness-110 text-pitch-bg font-bold uppercase py-3 rounded-sm disabled:opacity-50"
             >
               {saved
                 ? t("Saved!")

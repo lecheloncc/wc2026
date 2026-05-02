@@ -243,7 +243,7 @@ export function Groups() {
                 {!locked && (
                   <button
                     onClick={() => save(g)}
-                    className="mt-3 w-full bg-brand-sky hover:bg-sky-500 text-pitch-bg font-bold uppercase py-2 text-xs rounded-sm"
+                    className="mt-3 w-full bg-brand-sky hover:brightness-110 text-pitch-bg font-bold uppercase py-2 text-xs rounded-sm"
                   >
                     {savedGroup === g ? t("Saved!") : t("Save Order")}
                   </button>

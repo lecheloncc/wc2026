@@ -63,7 +63,7 @@ export default function ResetPasswordPage() {
             </div>
             <button
               disabled={loading}
-              className="w-full bg-brand-sky hover:bg-sky-500 text-pitch-bg font-bold uppercase py-3 rounded-sm disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full bg-brand-sky hover:brightness-110 text-pitch-bg font-bold uppercase py-3 rounded-sm disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading ? <Loader2 size={16} className="animate-spin" /> : "Update Password"}
             </button>

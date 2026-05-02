@@ -126,7 +126,7 @@ export default function AuthGate({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-brand-sky hover:bg-sky-500 text-pitch-bg font-bold uppercase py-3 rounded-sm transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
+                  className="w-full bg-brand-sky hover:brightness-110 text-pitch-bg font-bold uppercase py-3 rounded-sm transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
                 >
                   {loading ? (
                     <Loader2 size={18} className="animate-spin" />
@@ -195,7 +195,7 @@ export default function AuthGate({
                     setIsForgotPassword(true);
                     setError(null);
                   }}
-                  className="text-[10px] text-brand-sky hover:text-sky-300 font-mono uppercase tracking-wide transition-colors"
+                  className="text-[10px] text-brand-sky hover:brightness-125 font-mono uppercase tracking-wide transition-colors"
                 >
                   {t("Forgot Password?")}
                 </button>
@@ -218,7 +218,7 @@ export default function AuthGate({
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-brand-sky hover:bg-sky-500 text-pitch-bg font-bold uppercase py-3 rounded-sm transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
+            className="w-full bg-brand-sky hover:brightness-110 text-pitch-bg font-bold uppercase py-3 rounded-sm transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
           >
             {loading ? (
               <Loader2 size={18} className="animate-spin" />

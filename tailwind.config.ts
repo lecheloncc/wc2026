@@ -14,7 +14,9 @@ const config: Config = {
           line: "#1F2A44",
         },
         brand: {
-          sky: "#00A3E0",
+          // brand.sky resolves via CSS var so the work instance can swap it
+          // to green at runtime — see body.theme-werk in globals.css
+          sky: "var(--color-brand-sky)",
           gold: "#F2C94C",
           grass: "#22C55E",
           red: "#EF4444",

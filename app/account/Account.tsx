@@ -171,7 +171,7 @@ function ProfileEditor({
         <button
           onClick={save}
           disabled={saving || name.trim() === profile.display_name || !name.trim()}
-          className="bg-brand-sky hover:bg-sky-500 text-pitch-bg font-bold uppercase text-xs px-4 py-2 rounded-sm flex items-center gap-1 disabled:opacity-40"
+          className="bg-brand-sky hover:brightness-110 text-pitch-bg font-bold uppercase text-xs px-4 py-2 rounded-sm flex items-center gap-1 disabled:opacity-40"
         >
           <Save size={12} /> {t("Save")}
         </button>
@@ -247,7 +247,7 @@ function ProfileRow({
           <button
             onClick={rename}
             disabled={busy}
-            className="text-brand-sky hover:text-sky-300 text-xs font-bold uppercase"
+            className="text-brand-sky hover:brightness-125 text-xs font-bold uppercase"
           >
             {t("Save")}
           </button>
