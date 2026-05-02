@@ -28,7 +28,10 @@ const COLS_WERK =
   "grid-cols-[28px_1fr_70px_70px_55px_55px_55px_55px_60px] gap-x-2";
 const COLS_GROUP = "grid-cols-[28px_1fr_55px_60px] gap-x-2";
 
-const COUNTRY_BY_CODE = new Map(COUNTRIES.map((c) => [c.code, c]));
+type CountryRow = (typeof COUNTRIES)[number];
+const COUNTRY_BY_CODE: Map<string, CountryRow> = new Map(
+  COUNTRIES.map((c) => [c.code, c])
+);
 
 export function Leaderboard() {
   const { activeKey } = useActiveParticipant();
@@ -184,9 +187,7 @@ function IndividualTable({
       )}
       {rows.map((r, i) => {
         const isMe = r.user_email === activeKey;
-        const country = r.country
-          ? COUNTRY_BY_CODE.get(r.country as "NL" | "ES" | "US")
-          : null;
+        const country = r.country ? COUNTRY_BY_CODE.get(r.country) : null;
         return (
           <div
             key={r.user_email}
@@ -215,7 +216,7 @@ function IndividualTable({
               <span className="text-[11px] text-slate-300">
                 {country ? (
                   <>
-                    {country.flag} {country.code}
+                    {country.flag} {country.short}
                   </>
                 ) : (
                   <span className="text-slate-600">—</span>

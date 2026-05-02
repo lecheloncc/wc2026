@@ -16,10 +16,15 @@ export const DEPARTMENTS = [
 
 export type Department = (typeof DEPARTMENTS)[number];
 
+// Split Netherlands by office (Eindhoven / Breda) and add the other offices.
+// `code` goes in the DB. `short` is a 3-char tag for the leaderboard table.
 export const COUNTRIES = [
-  { code: "NL", label: "Netherlands", flag: "🇳🇱" },
-  { code: "ES", label: "Spain",       flag: "🇪🇸" },
-  { code: "US", label: "United States", flag: "🇺🇸" },
+  { code: "NL-EHV", label: "Netherlands · Eindhoven", short: "EHV", flag: "🇳🇱" },
+  { code: "NL-BRD", label: "Netherlands · Breda",     short: "BRD", flag: "🇳🇱" },
+  { code: "ES",     label: "Spain",                   short: "ES",  flag: "🇪🇸" },
+  { code: "US",     label: "United States",           short: "US",  flag: "🇺🇸" },
+  { code: "PL",     label: "Poland",                  short: "PL",  flag: "🇵🇱" },
+  { code: "FR",     label: "France",                  short: "FR",  flag: "🇫🇷" },
 ] as const;
 
 export type CountryCode = (typeof COUNTRIES)[number]["code"];
