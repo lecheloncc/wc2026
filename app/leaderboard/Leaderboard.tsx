@@ -39,7 +39,7 @@ export function Leaderboard() {
 
   useEffect(() => {
     (async () => {
-      const [{ data: board }, { data: profiles }] = await Promise.all([
+      const [{ data: board }, { data: profilesRaw }] = await Promise.all([
         supabase
           .from("leaderboard_cache")
           .select("*")
@@ -53,13 +53,19 @@ export function Leaderboard() {
           ),
       ]);
 
-      const byKey = new Map(
-        (profiles ?? []).map((p) => [p.participant_key, p])
-      );
+      type DBProfile = {
+        participant_key: string;
+        display_name: string;
+        owner_email: string;
+        is_owner: boolean;
+        department?: string | null;
+        country?: string | null;
+      };
+      const profiles = (profilesRaw as unknown as DBProfile[] | null) ?? [];
+
+      const byKey = new Map(profiles.map((p) => [p.participant_key, p]));
       const ownerByEmail = new Map(
-        (profiles ?? [])
-          .filter((p) => p.is_owner)
-          .map((p) => [p.owner_email, p])
+        profiles.filter((p) => p.is_owner).map((p) => [p.owner_email, p])
       );
 
       setRows(
@@ -78,9 +84,7 @@ export function Leaderboard() {
                 ? profile.owner_email.split("@")[0]
                 : null),
             is_owner: profile?.is_owner ?? true,
-            // @ts-expect-error - department only on werk schema
             department: profile?.department ?? null,
-            // @ts-expect-error - country only on werk schema
             country: profile?.country ?? null,
             match_points: r.match_points,
             group_points: r.group_points,
