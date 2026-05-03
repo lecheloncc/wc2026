@@ -271,6 +271,8 @@ export const NL: Record<string, string> = {
   "voorspeld": "voorspeld",
   "All matches predicted!": "Alle wedstrijden voorspeld!",
   "No matches yet.": "Nog geen wedstrijden.",
+  "Group stage. Knockout matches live on the Bracket page.":
+    "Groepsfase. Knockout-wedstrijden staan op de Knockout-pagina.",
 
   // Misc
   "Language": "Taal",

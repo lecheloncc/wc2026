@@ -34,11 +34,14 @@ export function MatchesList() {
     (async () => {
       if (!activeKey) return;
 
+      // Only group-stage matches here. Knockout predictions live on /bracket
+      // so users don't accidentally predict the same match twice.
       const { data: matches } = await supabase
         .from("matches")
         .select(
           "id, kickoff, stage, group_code, home_team_id, away_team_id, home_score, away_score, home:home_team_id(name), away:away_team_id(name)"
         )
+        .eq("stage", "group")
         .order("kickoff", { ascending: true });
 
       const { data: preds } = await supabase
@@ -95,9 +98,14 @@ export function MatchesList() {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <h1 className="text-xl font-black italic uppercase tracking-tighter">
-          {t("All Matches")}
-        </h1>
+        <div>
+          <h1 className="text-xl font-black italic uppercase tracking-tighter">
+            {t("All Matches")}
+          </h1>
+          <p className="text-xs text-slate-400 mt-1">
+            {t("Group stage. Knockout matches live on the Bracket page.")}
+          </p>
+        </div>
         <button
           onClick={() => setHidePredicted((v) => !v)}
           className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold text-slate-300 hover:text-white border border-pitch-line rounded-sm px-3 py-1.5"
