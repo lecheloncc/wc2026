@@ -265,6 +265,13 @@ export const NL: Record<string, string> = {
   "Open": "Open",
   "Unsaved changes": "Niet opgeslagen",
 
+  // Inline match editing
+  "Hide predicted": "Verberg voorspeld",
+  "Show all": "Toon alles",
+  "voorspeld": "voorspeld",
+  "All matches predicted!": "Alle wedstrijden voorspeld!",
+  "No matches yet.": "Nog geen wedstrijden.",
+
   // Misc
   "Language": "Taal",
   "min": "min",
