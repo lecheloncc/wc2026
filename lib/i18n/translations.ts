@@ -264,12 +264,10 @@ export const NL: Record<string, string> = {
   "Predicted": "Voorspeld",
   "Open": "Open",
   "Unsaved changes": "Niet opgeslagen",
-  "From matches": "Vanuit wedstrijden",
-  "Auto-fill from your match predictions": "Vul automatisch in op basis van je wedstrijdvoorspellingen",
-  "Auto-fill available once all 6 group matches are predicted.":
-    "Auto-vullen werkt zodra alle 6 groepswedstrijden voorspeld zijn.",
-  "From your match predictions": "Op basis van je wedstrijdvoorspellingen",
-  "matches:": "wedstrijden:",
+  "From your matches:": "Vanuit jouw wedstrijden:",
+  "Apply": "Toepassen",
+  "Two ways to use this page: rank manually with the up/down arrows, OR fill in all 6 group matches first — then a one-click 'Apply' shortcut appears per group.":
+    "Twee manieren om deze pagina te gebruiken: rangschik handmatig met de pijltjes, OF vul eerst alle 6 groepswedstrijden in — dan verschijnt per groep een 'Toepassen'-knop voor één klik.",
 
   // Inline match editing
   "Hide predicted": "Verberg voorspeld",

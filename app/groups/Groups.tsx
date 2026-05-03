@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../lib/supabase";
-import { ChevronUp, ChevronDown, Lock, CheckCircle, Wand2 } from "lucide-react";
+import { ChevronUp, ChevronDown, Lock, CheckCircle, Wand2, X, Lightbulb } from "lucide-react";
 import { scoreGroupOrder } from "../../lib/scoring/groups";
 import { computeGroupStandings } from "../../lib/scoring/groupStandings";
 import { useActiveParticipant } from "../../components/ActiveParticipant";
@@ -29,6 +29,15 @@ export function Groups() {
   // Per-group ordered list of team IDs derived from the user's match
   // predictions. `null` means the user hasn't predicted all 6 group matches yet.
   const [matchOrders, setMatchOrders] = useState<Record<string, number[] | null>>({});
+  const [tipDismissed, setTipDismissed] = useState(true);
+
+  useEffect(() => {
+    try {
+      setTipDismissed(localStorage.getItem("wc26.groups.tip") === "dismissed");
+    } catch {
+      setTipDismissed(false);
+    }
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -214,6 +223,29 @@ export function Groups() {
         </div>
       </div>
 
+      {!tipDismissed && (
+        <div className="bg-pitch-card border border-brand-sky/40 rounded-sm p-3 flex items-start gap-2">
+          <Lightbulb size={14} className="text-brand-sky shrink-0 mt-0.5" />
+          <p className="text-[11px] text-slate-300 flex-1 leading-relaxed">
+            {t(
+              "Two ways to use this page: rank manually with the up/down arrows, OR fill in all 6 group matches first — then a one-click 'Apply' shortcut appears per group."
+            )}
+          </p>
+          <button
+            onClick={() => {
+              setTipDismissed(true);
+              try {
+                localStorage.setItem("wc26.groups.tip", "dismissed");
+              } catch {}
+            }}
+            className="text-slate-500 hover:text-white shrink-0"
+            aria-label="Dismiss tip"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
       <div className="grid gap-4 md:grid-cols-2">
         {Object.keys(grouped)
           .sort()
@@ -262,19 +294,45 @@ export function Groups() {
                     )}
                   </div>
                 </div>
+                {(() => {
+                  const matchOrder = matchOrders[g];
+                  if (!matchOrder || locked) return null;
+                  // Only surface the suggestion line when the user's current
+                  // order differs from what their match predictions imply.
+                  const matches =
+                    matchOrder.length === order.length &&
+                    matchOrder.every((id, i) => id === order[i]);
+                  if (matches) return null;
+                  return (
+                    <div className="mb-3 flex items-center justify-between gap-2 bg-pitch-bg border border-pitch-line rounded-sm px-3 py-2">
+                      <p className="text-[11px] font-mono text-slate-300 flex items-center gap-1.5 flex-wrap">
+                        <Wand2 size={12} className="text-brand-sky shrink-0" />
+                        <span className="text-slate-500 uppercase tracking-widest text-[9px]">
+                          {t("From your matches:")}
+                        </span>
+                        {matchOrder.map((id, i) => {
+                          const team = grouped[g].find((tt) => tt.id === id);
+                          return (
+                            <span key={id} className="text-slate-300">
+                              {i + 1}.&nbsp;{team?.fifa_code ?? "?"}
+                            </span>
+                          );
+                        })}
+                      </p>
+                      <button
+                        onClick={() => setOrder(g, matchOrder)}
+                        className="shrink-0 px-3 py-1.5 text-[10px] uppercase font-bold tracking-widest bg-brand-sky text-pitch-bg hover:brightness-110 rounded-sm"
+                      >
+                        {t("Apply")}
+                      </button>
+                    </div>
+                  );
+                })()}
                 <ol className="space-y-2">
                   {order.map((teamId, idx) => {
                     const team = grouped[g].find((t) => t.id === teamId);
                     if (!team) return null;
                     const correct = actual && actual[idx] === teamId;
-                    const matchOrder = matchOrders[g];
-                    const matchIdx = matchOrder
-                      ? matchOrder.indexOf(teamId)
-                      : -1;
-                    const deviation =
-                      matchOrder && matchIdx >= 0 && matchIdx !== idx
-                        ? matchIdx - idx
-                        : 0;
                     return (
                       <li
                         key={teamId}
@@ -293,15 +351,6 @@ export function Groups() {
                           {team.fifa_code ?? ""}
                         </span>
                         <span className="flex-1 text-sm">{team.name}</span>
-                        {deviation !== 0 && (
-                          <span
-                            className="text-[10px] font-mono text-slate-500"
-                            title={t("From your match predictions")}
-                          >
-                            {deviation > 0 ? "↓" : "↑"} {t("matches:")}{" "}
-                            {matchIdx + 1}
-                          </span>
-                        )}
                         {!locked && (
                           <div className="flex flex-col">
                             <button
@@ -325,28 +374,12 @@ export function Groups() {
                   })}
                 </ol>
                 {!locked && (
-                  <div className="mt-3 flex items-center gap-2">
-                    <button
-                      onClick={() => save(g)}
-                      className="flex-1 bg-brand-sky hover:brightness-110 text-pitch-bg font-bold uppercase py-2 text-xs rounded-sm"
-                    >
-                      {savedGroup === g ? t("Saved!") : t("Save Order")}
-                    </button>
-                    {matchOrders[g] && (
-                      <button
-                        onClick={() => setOrder(g, matchOrders[g]!)}
-                        className="shrink-0 px-3 py-2 text-[11px] uppercase font-bold tracking-wider border border-pitch-line text-slate-300 hover:border-brand-sky hover:text-white rounded-sm flex items-center gap-1"
-                        title={t("Auto-fill from your match predictions")}
-                      >
-                        <Wand2 size={12} /> {t("From matches")}
-                      </button>
-                    )}
-                  </div>
-                )}
-                {!locked && !matchOrders[g] && (
-                  <p className="mt-2 text-[10px] text-slate-500 font-mono">
-                    {t("Auto-fill available once all 6 group matches are predicted.")}
-                  </p>
+                  <button
+                    onClick={() => save(g)}
+                    className="mt-3 w-full bg-brand-sky hover:brightness-110 text-pitch-bg font-bold uppercase py-2 text-xs rounded-sm"
+                  >
+                    {savedGroup === g ? t("Saved!") : t("Save Order")}
+                  </button>
                 )}
                 {errorGroup?.group === g && (
                   <p className="mt-2 text-[11px] text-red-300 font-mono bg-red-900/20 border border-red-500/40 rounded-sm p-2">
