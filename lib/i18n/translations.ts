@@ -264,6 +264,12 @@ export const NL: Record<string, string> = {
   "Predicted": "Voorspeld",
   "Open": "Open",
   "Unsaved changes": "Niet opgeslagen",
+  "From matches": "Vanuit wedstrijden",
+  "Auto-fill from your match predictions": "Vul automatisch in op basis van je wedstrijdvoorspellingen",
+  "Auto-fill available once all 6 group matches are predicted.":
+    "Auto-vullen werkt zodra alle 6 groepswedstrijden voorspeld zijn.",
+  "From your match predictions": "Op basis van je wedstrijdvoorspellingen",
+  "matches:": "wedstrijden:",
 
   // Inline match editing
   "Hide predicted": "Verberg voorspeld",

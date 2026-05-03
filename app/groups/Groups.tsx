@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../lib/supabase";
-import { ChevronUp, ChevronDown, Lock, CheckCircle } from "lucide-react";
+import { ChevronUp, ChevronDown, Lock, CheckCircle, Wand2 } from "lucide-react";
 import { scoreGroupOrder } from "../../lib/scoring/groups";
+import { computeGroupStandings } from "../../lib/scoring/groupStandings";
 import { useActiveParticipant } from "../../components/ActiveParticipant";
 import { useT } from "../../components/I18n";
 
@@ -25,27 +26,48 @@ export function Groups() {
   const [locks, setLocks] = useState<Record<string, boolean>>({});
   const [savedGroup, setSavedGroup] = useState<string | null>(null);
   const [errorGroup, setErrorGroup] = useState<{ group: string; msg: string } | null>(null);
+  // Per-group ordered list of team IDs derived from the user's match
+  // predictions. `null` means the user hasn't predicted all 6 group matches yet.
+  const [matchOrders, setMatchOrders] = useState<Record<string, number[] | null>>({});
 
   useEffect(() => {
     (async () => {
       if (!activeKey) return;
 
-      const [{ data: t }, { data: p }, { data: gr }, { data: firsts }] =
-        await Promise.all([
-          supabase
-            .from("teams")
-            .select("id,name,group_code,flag_emoji,fifa_code")
-            .order("group_code"),
-          supabase
-            .from("group_predictions")
-            .select("group_code, order_team_ids")
-            .eq("user_email", activeKey),
-          supabase.from("group_results").select("group_code, order_team_ids"),
-          supabase
-            .from("matches")
-            .select("group_code, kickoff")
-            .eq("stage", "group"),
-        ]);
+      const [
+        { data: t },
+        { data: p },
+        { data: gr },
+        { data: firsts },
+        { data: groupMatches },
+      ] = await Promise.all([
+        supabase
+          .from("teams")
+          .select("id,name,group_code,flag_emoji,fifa_code")
+          .order("group_code"),
+        supabase
+          .from("group_predictions")
+          .select("group_code, order_team_ids")
+          .eq("user_email", activeKey),
+        supabase.from("group_results").select("group_code, order_team_ids"),
+        supabase
+          .from("matches")
+          .select("group_code, kickoff")
+          .eq("stage", "group"),
+        supabase
+          .from("matches")
+          .select("id, group_code, home_team_id, away_team_id")
+          .eq("stage", "group"),
+      ]);
+
+      // User's match predictions for the group stage
+      const { data: matchPreds } = await supabase
+        .from("match_predictions")
+        .select("match_id, pred_home, pred_away")
+        .eq("user_email", activeKey);
+      const predByMatch = new Map(
+        (matchPreds ?? []).map((mp) => [mp.match_id, mp])
+      );
 
       setTeams(t ?? []);
       const preds: Record<string, number[]> = {};
@@ -72,6 +94,51 @@ export function Groups() {
         locked[m.group_code] = tournamentLocked;
       }
       setLocks(locked);
+
+      // Build per-group expected standings from the user's match predictions.
+      // Only valid if every group match has a saved prediction with team ids.
+      const matchesByGroup: Record<
+        string,
+        { id: number; home_team_id: number | null; away_team_id: number | null }[]
+      > = {};
+      for (const m of groupMatches ?? []) {
+        if (!m.group_code) continue;
+        (matchesByGroup[m.group_code] ||= []).push(m);
+      }
+      const teamsByGroup: Record<string, number[]> = {};
+      for (const team of t ?? []) {
+        (teamsByGroup[team.group_code] ||= []).push(team.id);
+      }
+      const orders: Record<string, number[] | null> = {};
+      for (const [g, gMatches] of Object.entries(matchesByGroup)) {
+        // Need 6 matches per group, all with both teams + a predicted score
+        const ready =
+          gMatches.length === 6 &&
+          gMatches.every(
+            (m) =>
+              m.home_team_id != null &&
+              m.away_team_id != null &&
+              predByMatch.has(m.id)
+          );
+        if (!ready) {
+          orders[g] = null;
+          continue;
+        }
+        const standings = computeGroupStandings(
+          teamsByGroup[g] ?? [],
+          gMatches.map((m) => {
+            const p = predByMatch.get(m.id)!;
+            return {
+              home_team_id: m.home_team_id!,
+              away_team_id: m.away_team_id!,
+              pred_home: p.pred_home,
+              pred_away: p.pred_away,
+            };
+          })
+        );
+        orders[g] = standings.map((s) => s.team_id);
+      }
+      setMatchOrders(orders);
     })();
   }, [activeKey]);
 
@@ -200,6 +267,14 @@ export function Groups() {
                     const team = grouped[g].find((t) => t.id === teamId);
                     if (!team) return null;
                     const correct = actual && actual[idx] === teamId;
+                    const matchOrder = matchOrders[g];
+                    const matchIdx = matchOrder
+                      ? matchOrder.indexOf(teamId)
+                      : -1;
+                    const deviation =
+                      matchOrder && matchIdx >= 0 && matchIdx !== idx
+                        ? matchIdx - idx
+                        : 0;
                     return (
                       <li
                         key={teamId}
@@ -218,6 +293,15 @@ export function Groups() {
                           {team.fifa_code ?? ""}
                         </span>
                         <span className="flex-1 text-sm">{team.name}</span>
+                        {deviation !== 0 && (
+                          <span
+                            className="text-[10px] font-mono text-slate-500"
+                            title={t("From your match predictions")}
+                          >
+                            {deviation > 0 ? "↓" : "↑"} {t("matches:")}{" "}
+                            {matchIdx + 1}
+                          </span>
+                        )}
                         {!locked && (
                           <div className="flex flex-col">
                             <button
@@ -241,12 +325,28 @@ export function Groups() {
                   })}
                 </ol>
                 {!locked && (
-                  <button
-                    onClick={() => save(g)}
-                    className="mt-3 w-full bg-brand-sky hover:brightness-110 text-pitch-bg font-bold uppercase py-2 text-xs rounded-sm"
-                  >
-                    {savedGroup === g ? t("Saved!") : t("Save Order")}
-                  </button>
+                  <div className="mt-3 flex items-center gap-2">
+                    <button
+                      onClick={() => save(g)}
+                      className="flex-1 bg-brand-sky hover:brightness-110 text-pitch-bg font-bold uppercase py-2 text-xs rounded-sm"
+                    >
+                      {savedGroup === g ? t("Saved!") : t("Save Order")}
+                    </button>
+                    {matchOrders[g] && (
+                      <button
+                        onClick={() => setOrder(g, matchOrders[g]!)}
+                        className="shrink-0 px-3 py-2 text-[11px] uppercase font-bold tracking-wider border border-pitch-line text-slate-300 hover:border-brand-sky hover:text-white rounded-sm flex items-center gap-1"
+                        title={t("Auto-fill from your match predictions")}
+                      >
+                        <Wand2 size={12} /> {t("From matches")}
+                      </button>
+                    )}
+                  </div>
+                )}
+                {!locked && !matchOrders[g] && (
+                  <p className="mt-2 text-[10px] text-slate-500 font-mono">
+                    {t("Auto-fill available once all 6 group matches are predicted.")}
+                  </p>
                 )}
                 {errorGroup?.group === g && (
                   <p className="mt-2 text-[11px] text-red-300 font-mono bg-red-900/20 border border-red-500/40 rounded-sm p-2">
