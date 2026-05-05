@@ -272,6 +272,23 @@ export const NL: Record<string, string> = {
   "Unsaved changes": "Niet opgeslagen",
   "From your matches:": "Vanuit jouw wedstrijden:",
   "Apply": "Toepassen",
+
+  // Rules of engagement / payments
+  "Rules of engagement": "Spelregels (deelname)",
+  "Entry fee: € 10 per player.": "Inschrijfgeld: € 10 per speler.",
+  "Transfer to NL00 BANK 0000 0000 00 (account holder: Robin Franken) before the tournament kicks off on 11 June 2026. Mention your display name in the description so I can match the payment.":
+    "Maak € 10 over naar NL00 BANK 0000 0000 00 t.n.v. Robin Franken vóór de aftrap van het toernooi (11 juni 2026). Zet je weergavenaam in de omschrijving, zodat ik de betaling kan koppelen.",
+  "Accounts that haven't paid by kickoff will be removed (kindly). All paid players play for the prize pool.":
+    "Accounts die niet betaald hebben vóór de aftrap worden (vriendelijk) verwijderd. Alle betalende spelers spelen mee om de prijzenpot.",
+  "International players: trouble transferring to a Dutch IBAN? Reach out in time and we'll find an alternative (Wise, Revolut, PayPal, etc.). Don't leave it to the last minute.":
+    "Buitenlandse deelnemers: lukt overmaken naar een Nederlands IBAN niet? Neem op tijd contact op zodat we een alternatief regelen (Wise, Revolut, PayPal, enz.). Doe het niet op het laatste moment.",
+  "Payment status is shown on the leaderboard.":
+    "Betaalstatus is zichtbaar op de stand.",
+
+  // Leaderboard paid column
+  "Paid": "Betaald",
+  "Unpaid": "Niet betaald",
+  "No players yet.": "Nog geen spelers.",
   "Two ways to use this page: rank manually with the up/down arrows, OR fill in all 6 group matches first — then a one-click 'Apply' shortcut appears per group.":
     "Twee manieren om deze pagina te gebruiken: rangschik handmatig met de pijltjes, OF vul eerst alle 6 groepswedstrijden in — dan verschijnt per groep een 'Toepassen'-knop voor één klik.",
 

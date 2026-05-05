@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
-import { Users, Save, Loader2 } from "lucide-react";
-import { DEPARTMENTS, COUNTRIES } from "../../lib/work-tags";
+import { Users, Save, Loader2, Check, Circle } from "lucide-react";
+import { DEPARTMENTS, COUNTRIES, isWerk } from "../../lib/work-tags";
 
 type Row = {
   participant_key: string;
@@ -12,6 +12,7 @@ type Row = {
   is_owner: boolean;
   department: string | null;
   country: string | null;
+  paid: boolean;
 };
 
 export function Participants() {
@@ -19,22 +20,50 @@ export function Participants() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const werk = isWerk();
 
   async function load() {
-    const { data, error } = await supabase
-      .from("participant_profiles")
-      .select(
-        "participant_key, display_name, owner_email, is_owner, department, country"
-      )
-      .order("is_owner", { ascending: false })
-      .order("display_name", { ascending: true });
+    const profileSelect = werk
+      ? "participant_key, display_name, owner_email, is_owner, department, country"
+      : "participant_key, display_name, owner_email, is_owner";
+    const [{ data, error }, paymentsRes] = await Promise.all([
+      supabase
+        .from("participant_profiles")
+        .select(profileSelect)
+        .order("is_owner", { ascending: false })
+        .order("display_name", { ascending: true }),
+      supabase.from("participant_payments").select("participant_key, paid"),
+    ]);
     if (error) setMsg(`Load FAILED: ${error.message}`);
-    setRows(data ?? []);
+    const paidByKey = new Map(
+      (paymentsRes.data ?? []).map((p) => [p.participant_key, p.paid])
+    );
+    type DBProfile = {
+      participant_key: string;
+      display_name: string;
+      owner_email: string;
+      is_owner: boolean;
+      department?: string | null;
+      country?: string | null;
+    };
+    const list = (data as unknown as DBProfile[] | null) ?? [];
+    setRows(
+      list.map((p) => ({
+        participant_key: p.participant_key,
+        display_name: p.display_name,
+        owner_email: p.owner_email,
+        is_owner: p.is_owner,
+        department: p.department ?? null,
+        country: p.country ?? null,
+        paid: paidByKey.get(p.participant_key) ?? false,
+      }))
+    );
     setLoading(false);
   }
 
   useEffect(() => {
     void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function update(
@@ -60,7 +89,33 @@ export function Participants() {
     );
   }
 
-  const taggedCount = rows.filter((r) => r.department && r.country).length;
+  async function togglePaid(participant_key: string, next: boolean) {
+    setSaving(participant_key + ":paid");
+    setMsg(null);
+    const { error } = await supabase
+      .from("participant_payments")
+      .upsert({
+        participant_key,
+        paid: next,
+        paid_at: next ? new Date().toISOString() : null,
+        updated_at: new Date().toISOString(),
+      });
+    setSaving(null);
+    if (error) {
+      setMsg(`Paid toggle FAILED for ${participant_key}: ${error.message}`);
+      return;
+    }
+    setRows((cur) =>
+      cur.map((r) =>
+        r.participant_key === participant_key ? { ...r, paid: next } : r
+      )
+    );
+  }
+
+  const taggedCount = werk
+    ? rows.filter((r) => r.department && r.country).length
+    : rows.length;
+  const paidCount = rows.filter((r) => r.paid).length;
 
   return (
     <section className="bg-pitch-card border border-pitch-line rounded-sm p-5">
@@ -71,13 +126,16 @@ export function Participants() {
             Participants
           </h2>
         </div>
-        <span className="text-[10px] font-mono text-slate-500">
-          {taggedCount} / {rows.length} tagged
-        </span>
+        <div className="flex items-center gap-3 text-[10px] font-mono text-slate-500">
+          <span>{paidCount} / {rows.length} paid</span>
+          {werk && <span>·</span>}
+          {werk && <span>{taggedCount} / {rows.length} tagged</span>}
+        </div>
       </div>
       <p className="text-[11px] text-slate-500 font-mono mb-4">
-        Set department + country for every player so the leaderboard can be
-        broken down by team / office. Changes save automatically.
+        {werk
+          ? "Set department + country + payment status for each player. Changes save automatically."
+          : "Toggle Paid as you receive entry-fee transfers. Changes save automatically."}
       </p>
 
       {msg && (
@@ -103,9 +161,9 @@ export function Participants() {
               <tr className="text-[10px] uppercase tracking-widest font-mono text-slate-500 border-b border-pitch-line">
                 <th className="text-left py-2 pr-2">Name</th>
                 <th className="text-left pr-2">Email</th>
-                <th className="text-left pr-2">Department</th>
-                <th className="text-left pr-2">Country</th>
-                <th className="w-6" />
+                {werk && <th className="text-left pr-2">Department</th>}
+                {werk && <th className="text-left pr-2">Country</th>}
+                <th className="text-center pr-2">Paid</th>
               </tr>
             </thead>
             <tbody>
@@ -127,54 +185,71 @@ export function Participants() {
                     <td className="pr-2 text-xs text-slate-400 font-mono truncate max-w-[200px]">
                       {r.owner_email}
                     </td>
-                    <td className="pr-2">
-                      <select
-                        value={r.department ?? ""}
-                        onChange={(e) =>
-                          update(
-                            r.participant_key,
-                            "department",
-                            e.target.value || null
-                          )
-                        }
+                    {werk && (
+                      <td className="pr-2">
+                        <select
+                          value={r.department ?? ""}
+                          onChange={(e) =>
+                            update(
+                              r.participant_key,
+                              "department",
+                              e.target.value || null
+                            )
+                          }
+                          disabled={busy}
+                          className="bg-pitch-bg border border-pitch-line rounded-sm px-2 py-1 text-xs"
+                        >
+                          <option value="">—</option>
+                          {DEPARTMENTS.map((d) => (
+                            <option key={d} value={d}>
+                              {d}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                    )}
+                    {werk && (
+                      <td className="pr-2">
+                        <select
+                          value={r.country ?? ""}
+                          onChange={(e) =>
+                            update(
+                              r.participant_key,
+                              "country",
+                              e.target.value || null
+                            )
+                          }
+                          disabled={busy}
+                          className="bg-pitch-bg border border-pitch-line rounded-sm px-2 py-1 text-xs"
+                        >
+                          <option value="">—</option>
+                          {COUNTRIES.map((c) => (
+                            <option key={c.code} value={c.code}>
+                              {c.flag} {c.label}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                    )}
+                    <td className="pr-2 text-center">
+                      <button
+                        onClick={() => togglePaid(r.participant_key, !r.paid)}
                         disabled={busy}
-                        className="bg-pitch-bg border border-pitch-line rounded-sm px-2 py-1 text-xs"
+                        className={`inline-flex items-center justify-center w-7 h-7 rounded-sm border transition-colors ${
+                          r.paid
+                            ? "bg-brand-grass/20 border-brand-grass/50 text-brand-grass"
+                            : "bg-pitch-bg border-pitch-line text-slate-500 hover:border-brand-grass/50"
+                        } disabled:opacity-50`}
+                        title={r.paid ? "Mark unpaid" : "Mark paid"}
                       >
-                        <option value="">—</option>
-                        {DEPARTMENTS.map((d) => (
-                          <option key={d} value={d}>
-                            {d}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="pr-2">
-                      <select
-                        value={r.country ?? ""}
-                        onChange={(e) =>
-                          update(
-                            r.participant_key,
-                            "country",
-                            e.target.value || null
-                          )
-                        }
-                        disabled={busy}
-                        className="bg-pitch-bg border border-pitch-line rounded-sm px-2 py-1 text-xs"
-                      >
-                        <option value="">—</option>
-                        {COUNTRIES.map((c) => (
-                          <option key={c.code} value={c.code}>
-                            {c.flag} {c.label}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      {busy ? (
-                        <Loader2 size={12} className="animate-spin text-brand-sky" />
-                      ) : r.department && r.country ? (
-                        <Save size={12} className="text-brand-grass" />
-                      ) : null}
+                        {busy && saving?.endsWith(":paid") ? (
+                          <Loader2 size={12} className="animate-spin" />
+                        ) : r.paid ? (
+                          <Check size={14} />
+                        ) : (
+                          <Circle size={10} />
+                        )}
+                      </button>
                     </td>
                   </tr>
                 );
@@ -182,6 +257,11 @@ export function Participants() {
             </tbody>
           </table>
         </div>
+      )}
+      {!werk && (
+        <p className="text-[10px] text-slate-500 font-mono mt-3">
+          Tip: Ctrl-F here to find by name, then click the circle to mark paid.
+        </p>
       )}
     </section>
   );

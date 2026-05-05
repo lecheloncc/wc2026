@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../lib/supabase";
-import { Trophy } from "lucide-react";
+import { Trophy, Check, Circle } from "lucide-react";
 import { useActiveParticipant } from "../../components/ActiveParticipant";
 import { useT } from "../../components/I18n";
 import { isWerk, COUNTRIES } from "../../lib/work-tags";
@@ -14,6 +14,7 @@ type Row = {
   is_owner: boolean;
   department: string | null;
   country: string | null;
+  paid: boolean;
   match_points: number;
   group_points: number;
   topscorer_points: number;
@@ -23,9 +24,11 @@ type Row = {
 
 type Mode = "individual" | "by-department" | "by-country";
 
-const COLS_DEFAULT = "grid-cols-[28px_1fr_60px_55px_55px_55px_60px] gap-x-2";
+// rank, player, [dept, country]?, paid, match, group, scorer, bonus, total
+const COLS_DEFAULT =
+  "grid-cols-[28px_1fr_28px_55px_55px_55px_55px_60px] gap-x-2";
 const COLS_WERK =
-  "grid-cols-[28px_1fr_70px_70px_55px_55px_55px_55px_60px] gap-x-2";
+  "grid-cols-[28px_1fr_70px_70px_28px_55px_55px_55px_55px_60px] gap-x-2";
 const COLS_GROUP = "grid-cols-[28px_1fr_55px_60px] gap-x-2";
 
 type CountryRow = (typeof COUNTRIES)[number];
@@ -42,19 +45,21 @@ export function Leaderboard() {
 
   useEffect(() => {
     (async () => {
-      const [{ data: board }, { data: profilesRaw }] = await Promise.all([
-        supabase
-          .from("leaderboard_cache")
-          .select("*")
-          .order("total", { ascending: false }),
-        supabase
-          .from("participant_profiles")
-          .select(
-            werk
-              ? "participant_key, display_name, owner_email, is_owner, department, country"
-              : "participant_key, display_name, owner_email, is_owner"
-          ),
-      ]);
+      const [{ data: board }, { data: profilesRaw }, paymentsRes] =
+        await Promise.all([
+          supabase.from("leaderboard_cache").select("*"),
+          supabase
+            .from("participant_profiles")
+            .select(
+              werk
+                ? "participant_key, display_name, owner_email, is_owner, department, country"
+                : "participant_key, display_name, owner_email, is_owner"
+            ),
+          // Payments table is added by migration 0008. Until that's run on
+          // a given Supabase project, the call returns an error which we
+          // gracefully treat as "everyone unpaid".
+          supabase.from("participant_payments").select("participant_key, paid"),
+        ]);
 
       type DBProfile = {
         participant_key: string;
@@ -65,42 +70,47 @@ export function Leaderboard() {
         country?: string | null;
       };
       const profiles = (profilesRaw as unknown as DBProfile[] | null) ?? [];
-
-      const byKey = new Map(profiles.map((p) => [p.participant_key, p]));
+      const cacheByKey = new Map(
+        (board ?? []).map((b) => [b.user_email, b])
+      );
+      const paidByKey = new Map(
+        (paymentsRes.data ?? []).map((p) => [p.participant_key, p.paid])
+      );
       const ownerByEmail = new Map(
         profiles.filter((p) => p.is_owner).map((p) => [p.owner_email, p])
       );
 
-      setRows(
-        (board ?? []).map((r) => {
-          const profile = byKey.get(r.user_email);
-          const ownerProfile =
-            profile && !profile.is_owner
-              ? ownerByEmail.get(profile.owner_email)
-              : null;
-          return {
-            user_email: r.user_email,
-            display_name: profile?.display_name ?? r.user_email,
-            parent_display_name:
-              ownerProfile?.display_name ??
-              (profile && !profile.is_owner
-                ? profile.owner_email.split("@")[0]
-                : null),
-            is_owner: profile?.is_owner ?? true,
-            department: profile?.department ?? null,
-            country: profile?.country ?? null,
-            match_points: r.match_points,
-            group_points: r.group_points,
-            topscorer_points: r.topscorer_points,
-            tournament_points: r.tournament_points ?? 0,
-            total: r.total,
-          };
-        })
-      );
+      const built: Row[] = profiles.map((profile) => {
+        const cache = cacheByKey.get(profile.participant_key);
+        const ownerProfile = !profile.is_owner
+          ? ownerByEmail.get(profile.owner_email)
+          : null;
+        return {
+          user_email: profile.participant_key,
+          display_name: profile.display_name,
+          parent_display_name:
+            ownerProfile?.display_name ??
+            (!profile.is_owner ? profile.owner_email.split("@")[0] : null),
+          is_owner: profile.is_owner,
+          department: profile.department ?? null,
+          country: profile.country ?? null,
+          paid: paidByKey.get(profile.participant_key) ?? false,
+          match_points: cache?.match_points ?? 0,
+          group_points: cache?.group_points ?? 0,
+          topscorer_points: cache?.topscorer_points ?? 0,
+          tournament_points: cache?.tournament_points ?? 0,
+          total: cache?.total ?? 0,
+        };
+      });
+
+      built.sort((a, b) => {
+        if (b.total !== a.total) return b.total - a.total;
+        return a.display_name.localeCompare(b.display_name);
+      });
+      setRows(built);
     })();
   }, [werk]);
 
-  // Aggregations (only meaningful on werk)
   const byDepartment = useMemo(() => groupAggregate(rows, "department"), [rows]);
   const byCountry = useMemo(() => groupAggregate(rows, "country"), [rows]);
 
@@ -174,6 +184,9 @@ function IndividualTable({
         <span>{t("Player")}</span>
         {werk && <span>Dept</span>}
         {werk && <span>Country</span>}
+        <span className="text-center" title={t("Paid")}>
+          {t("Paid")}
+        </span>
         <span className="text-right">{t("Match")}</span>
         <span className="text-right">{t("Group")}</span>
         <span className="text-right">{t("Scorer")}</span>
@@ -182,7 +195,7 @@ function IndividualTable({
       </div>
       {rows.length === 0 && (
         <p className="text-slate-500 text-xs px-3 py-6 text-center">
-          {t("No scores yet. Come back after the opening match!")}
+          {t("No players yet.")}
         </p>
       )}
       {rows.map((r, i) => {
@@ -196,7 +209,9 @@ function IndividualTable({
             }`}
           >
             <span className="font-mono text-slate-500 flex items-center gap-1">
-              {i < 3 && <Trophy size={12} className="text-brand-gold" />}
+              {i < 3 && r.total > 0 && (
+                <Trophy size={12} className="text-brand-gold" />
+              )}
               {i + 1}
             </span>
             <span className="truncate">
@@ -223,6 +238,13 @@ function IndividualTable({
                 )}
               </span>
             )}
+            <span className="flex items-center justify-center" title={r.paid ? t("Paid") : t("Unpaid")}>
+              {r.paid ? (
+                <Check size={14} className="text-brand-grass" />
+              ) : (
+                <Circle size={10} className="text-slate-600" />
+              )}
+            </span>
             <span className="text-right font-mono text-xs">{r.match_points}</span>
             <span className="text-right font-mono text-xs">{r.group_points}</span>
             <span className="text-right font-mono text-xs">{r.topscorer_points}</span>

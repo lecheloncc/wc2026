@@ -214,7 +214,8 @@ export function Admin() {
         </p>
       )}
 
-      {isWerk() && <Participants />}
+      <Participants />
+      {/* (department + country fields only render on the work instance — see Participants.tsx) */}
 
       <GoalEntry matches={matches} />
 
