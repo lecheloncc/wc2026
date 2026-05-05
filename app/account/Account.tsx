@@ -9,6 +9,7 @@ import {
 } from "../../components/ActiveParticipant";
 import { User, Plus, Trash2, Save, AlertCircle } from "lucide-react";
 import { useT } from "../../components/I18n";
+import { isWerk } from "../../lib/work-tags";
 
 const PREDICTION_TABLES = [
   "match_predictions",
@@ -26,6 +27,7 @@ export function Account() {
 
   const owner = profiles.find((p) => p.is_owner);
   const kids = profiles.filter((p) => !p.is_owner);
+  const showKids = !isWerk();
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
@@ -63,6 +65,7 @@ export function Account() {
         />
       )}
 
+      {showKids && (
       <section className="bg-pitch-card border border-pitch-line rounded-sm p-5">
         <div className="flex items-center gap-2 mb-2">
           <User size={16} className="text-brand-sky" />
@@ -113,6 +116,7 @@ export function Account() {
           onError={(e) => setMsg(`FAILED: ${e}`)}
         />
       </section>
+      )}
     </div>
   );
 }
