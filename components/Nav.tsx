@@ -9,6 +9,7 @@ import { useActiveParticipant } from "./ActiveParticipant";
 import { useState } from "react";
 import { useT } from "./I18n";
 import { LANGS, type Lang } from "../lib/i18n/translations";
+import { isWerk } from "../lib/work-tags";
 
 export function Nav({ email, isAdmin }: { email: string | null; isAdmin: boolean }) {
   const pathname = usePathname();
@@ -16,7 +17,11 @@ export function Nav({ email, isAdmin }: { email: string | null; isAdmin: boolean
   const { t, lang, setLang } = useT();
   const [open, setOpen] = useState(false);
 
+  // The work instance is mostly used on desktop, where an explicit Dashboard
+  // tab makes navigation faster than relying on the brand logo. The family
+  // instance keeps the slimmer nav.
   const links = [
+    ...(isWerk() ? [{ href: "/", label: t("Dashboard") }] : []),
     { href: "/matches", label: t("Matches") },
     { href: "/groups", label: t("Groups") },
     { href: "/predictions", label: t("Predictions") },

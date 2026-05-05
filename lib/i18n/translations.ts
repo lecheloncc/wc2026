@@ -52,6 +52,7 @@ export const EN: Record<string, string> = {
 // Dutch translations.
 export const NL: Record<string, string> = {
   // Nav
+  "Dashboard": "Dashboard",
   "Matches": "Wedstrijden",
   "Groups": "Groepen",
   "Predictions": "Voorspellingen",
