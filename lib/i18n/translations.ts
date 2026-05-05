@@ -285,6 +285,18 @@ export const NL: Record<string, string> = {
   "Payment status is shown on the leaderboard.":
     "Betaalstatus is zichtbaar op de stand.",
 
+  // Prize pool
+  "Prize pool": "Prijzenpot",
+  "The prize pool is the total of all entry fees (number of paid players × € 10). It's split among the top finishers.":
+    "De prijzenpot is het totaal van alle inschrijfgelden (aantal betalende spelers × € 10) en wordt verdeeld onder de hoogst geëindigden.",
+  "Placeholder split — the exact percentages may still shift depending on how many players join, but this is the direction.":
+    "Voorlopige verdeling — de exacte percentages kunnen nog wijzigen afhankelijk van het aantal deelnemers, maar dit is de richting.",
+  "1st place": "1e plek",
+  "2nd place": "2e plek",
+  "3rd place": "3e plek",
+  "4th place": "4e plek",
+  "5th place": "5e plek",
+
   // Leaderboard paid column
   "Paid": "Betaald",
   "Unpaid": "Niet betaald",

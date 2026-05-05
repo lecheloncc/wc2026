@@ -1,10 +1,42 @@
 "use client";
 
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Trophy } from "lucide-react";
 import { useT } from "../../components/I18n";
+import { isWerk } from "../../lib/work-tags";
+
+const PRIZE_SPLITS_WERK = [
+  { place: 1, pct: 42.5 },
+  { place: 2, pct: 27.5 },
+  { place: 3, pct: 15 },
+  { place: 4, pct: 10 },
+  { place: 5, pct: 5 },
+];
+const PRIZE_SPLITS_FAMILIE = [
+  { place: 1, pct: 50 },
+  { place: 2, pct: 30 },
+  { place: 3, pct: 20 },
+];
+
+function placeLabel(place: number, t: (k: string) => string): string {
+  switch (place) {
+    case 1:
+      return `🥇 ${t("1st place")}`;
+    case 2:
+      return `🥈 ${t("2nd place")}`;
+    case 3:
+      return `🥉 ${t("3rd place")}`;
+    case 4:
+      return t("4th place");
+    case 5:
+      return t("5th place");
+    default:
+      return `${place}.`;
+  }
+}
 
 export function Rules() {
   const { t } = useT();
+  const splits = isWerk() ? PRIZE_SPLITS_WERK : PRIZE_SPLITS_FAMILIE;
   return (
     <div className="max-w-2xl mx-auto prose prose-invert space-y-6">
       <h1 className="text-xl font-black italic uppercase tracking-tighter">
@@ -37,6 +69,39 @@ export function Rules() {
         </p>
         <p className="text-[11px] text-slate-500 font-mono mt-3">
           {t("Payment status is shown on the leaderboard.")}
+        </p>
+      </section>
+
+      {/* Prize pool — placeholder split, may shift with final headcount */}
+      <section className="bg-pitch-card border border-brand-grass/40 rounded-sm p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <Trophy size={16} className="text-brand-grass" />
+          <h2 className="text-sm font-black uppercase tracking-widest text-brand-grass">
+            {t("Prize pool")}
+          </h2>
+        </div>
+        <p className="text-sm text-slate-200 leading-relaxed mb-3">
+          {t(
+            "The prize pool is the total of all entry fees (number of paid players × € 10). It's split among the top finishers."
+          )}
+        </p>
+        <ul className="space-y-1 text-sm text-slate-300">
+          {splits.map((s) => (
+            <li
+              key={s.place}
+              className="flex items-center justify-between bg-pitch-bg border border-pitch-line rounded-sm px-3 py-2"
+            >
+              <span>{placeLabel(s.place, t)}</span>
+              <span className="font-mono font-bold text-brand-gold">
+                {s.pct.toString().replace(".", ",")}%
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p className="text-[11px] text-slate-500 font-mono mt-3 leading-relaxed">
+          {t(
+            "Placeholder split — the exact percentages may still shift depending on how many players join, but this is the direction."
+          )}
         </p>
       </section>
 
