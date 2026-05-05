@@ -43,6 +43,8 @@ export const EN: Record<string, string> = {
     "Scoring multipliers: Round of 16 ×1.5 · Quarter-finals ×2 · Semi-finals ×3 · Third-place/Final ×4.",
   "One Pot 3 / Pot 4 team. R16 = 10 · QF = +10 · SF = +15 (max 35)":
     "One Pot 3 / Pot 4 team. Round of 16 = 10 · Quarter-finals = +10 · Semi-finals = +15 (max 35)",
+  "Scoring: R16 = 10 · QF = +10 · SF = +15 (max 35)":
+    "Scoring: Round of 16 = 10 · Quarter-finals = +10 · Semi-finals = +15 (max 35)",
   "Dark Horse (Pot 3 or Pot 4 team): 10 if reaches R16 · +10 QF · +15 SF (max 35)":
     "Dark Horse (Pot 3 or Pot 4 team): 10 if they reach the Round of 16 · +10 Quarter-finals · +15 Semi-finals (max 35)",
 };
@@ -182,6 +184,10 @@ export const NL: Record<string, string> = {
   "Dark Horse": "Dark Horse",
   "One Pot 3 / Pot 4 team. R16 = 10 · QF = +10 · SF = +15 (max 35)":
     "Eén team uit Pot 3 of Pot 4. Achtste finale = 10 · Kwartfinale = +10 · Halve finale = +15 (max 35)",
+  "A 'dark horse' is an underdog — a team that's not expected to go far. Pick one from Pot 3 or Pot 4 (the lower-ranked half of the draw, by FIFA ranking). If they surprise everyone and reach the knockout rounds, you score big bonus points.":
+    "Een 'dark horse' is een outsider — een team dat niet wordt verwacht ver te komen. Kies er één uit Pot 3 of Pot 4 (de minder hoog geplaatste helft van de loting, op basis van de FIFA-ranking). Verrassen ze iedereen en halen ze de knock-outs? Dan scoor je flink wat bonuspunten.",
+  "Scoring: R16 = 10 · QF = +10 · SF = +15 (max 35)":
+    "Punten: Achtste finale = 10 · Kwartfinale = +10 · Halve finale = +15 (max 35)",
   "Pick 3 players. 2 pts per goal · +10 if one of your picks wins the Golden Boot.":
     "Kies 3 spelers. 2 punten per goal · +10 als één van je keuzes de Gouden Schoen wint.",
   "Your picks": "Jouw keuzes",

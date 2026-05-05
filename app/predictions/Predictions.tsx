@@ -253,16 +253,29 @@ export function Predictions() {
         </div>
       </section>
 
-      <PickSection
-        icon={<Sparkles size={16} className="text-brand-grass" />}
-        title={t("Dark Horse")}
-        subtitle={t("One Pot 3 / Pot 4 team. R16 = 10 · QF = +10 · SF = +15 (max 35)")}
-        teams={darkHorseTeams}
-        value={picks.darkHorseTeamId}
-        onChange={(id) => setPicks((p) => ({ ...p, darkHorseTeamId: id }))}
-        teamById={teamById}
-        locked={locked}
-      />
+      <section className="bg-pitch-card border border-pitch-line rounded-sm p-5">
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles size={16} className="text-brand-grass" />
+          <h2 className="text-sm font-black uppercase tracking-widest">
+            {t("Dark Horse")}
+          </h2>
+        </div>
+        <p className="text-[11px] text-slate-300 mb-2 leading-relaxed">
+          {t(
+            "A 'dark horse' is an underdog — a team that's not expected to go far. Pick one from Pot 3 or Pot 4 (the lower-ranked half of the draw, by FIFA ranking). If they surprise everyone and reach the knockout rounds, you score big bonus points."
+          )}
+        </p>
+        <p className="text-[11px] text-slate-500 font-mono mb-3">
+          {t("Scoring: R16 = 10 · QF = +10 · SF = +15 (max 35)")}
+        </p>
+        <TeamSelect
+          teams={darkHorseTeams}
+          value={picks.darkHorseTeamId}
+          onChange={(id) => setPicks((p) => ({ ...p, darkHorseTeamId: id }))}
+          disabled={locked}
+          teamById={teamById}
+        />
+      </section>
 
       <TopscorerPicks
         players={players}
