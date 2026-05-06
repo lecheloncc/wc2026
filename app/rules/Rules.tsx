@@ -54,7 +54,7 @@ export function Rules() {
         <p className="text-sm text-slate-200 leading-relaxed">
           <b>{t("Entry fee: € 10 per player.")}</b>{" "}
           {t(
-            "Transfer to NL00 BANK 0000 0000 00 (account holder: Robin Franken) before the tournament kicks off on 11 June 2026. Mention your display name in the description so I can match the payment."
+            "Transfer to NL06RABO 0174 3180 65 (account holder: Robin Franken) before the tournament kicks off on 11 June 2026. Mention your display name in the description so I can match the payment."
           )}
         </p>
         <p className="text-sm text-slate-200 mt-3 leading-relaxed">
