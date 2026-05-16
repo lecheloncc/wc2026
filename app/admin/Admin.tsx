@@ -7,7 +7,7 @@ import { deriveTournamentResults } from "../../lib/scoring/tournament";
 import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { GoalEntry } from "./GoalEntry";
 import { Participants } from "./Participants";
-import { isWerk } from "../../lib/work-tags";
+import { Progress } from "./Progress";
 
 const ADMIN_EMAIL = (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "").toLowerCase();
 
@@ -216,6 +216,8 @@ export function Admin() {
 
       <Participants />
       {/* (department + country fields only render on the work instance — see Participants.tsx) */}
+
+      <Progress />
 
       <GoalEntry matches={matches} />
 
