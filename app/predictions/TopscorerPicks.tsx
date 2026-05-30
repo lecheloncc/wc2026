@@ -27,17 +27,41 @@ export function TopscorerPicks({
 }) {
   const { t } = useT();
   const [query, setQuery] = useState("");
+  const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
+
+  // Unique team chips derived from the seeded player pool. Sorted alphabetically.
+  const teams = useMemo(() => {
+    const map = new Map<
+      string,
+      { code: string; name: string; flag: string | null }
+    >();
+    for (const p of players) {
+      if (p.team_code && !map.has(p.team_code)) {
+        map.set(p.team_code, {
+          code: p.team_code,
+          name: p.team_name,
+          flag: p.team_flag,
+        });
+      }
+    }
+    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
+  }, [players]);
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
-    if (!q) return players.slice(0, 50);
-    return players
-      .filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) || p.team_name.toLowerCase().includes(q)
+    const list = players.filter((p) => {
+      if (selectedTeam && p.team_code !== selectedTeam) return false;
+      if (
+        q &&
+        !p.name.toLowerCase().includes(q) &&
+        !p.team_name.toLowerCase().includes(q)
       )
-      .slice(0, 50);
-  }, [players, query]);
+        return false;
+      return true;
+    });
+    // With a country filter the list is small enough to show in full.
+    return list.slice(0, selectedTeam ? 100 : 50);
+  }, [players, query, selectedTeam]);
 
   function toggle(id: number) {
     if (locked) return;
@@ -110,6 +134,35 @@ export function TopscorerPicks({
 
       {!locked && (
         <div className="mt-4 pt-4 border-t border-pitch-line">
+          {/* Country quick-filter */}
+          <div className="flex flex-wrap gap-1 mb-2">
+            <button
+              onClick={() => setSelectedTeam(null)}
+              className={`text-[10px] uppercase tracking-widest font-bold px-2 py-1 rounded-sm border transition-colors ${
+                selectedTeam === null
+                  ? "bg-brand-sky text-pitch-bg border-brand-sky"
+                  : "bg-pitch-bg text-slate-400 border-pitch-line hover:text-white"
+              }`}
+            >
+              {t("All")}
+            </button>
+            {teams.map((tm) => (
+              <button
+                key={tm.code}
+                onClick={() =>
+                  setSelectedTeam(selectedTeam === tm.code ? null : tm.code)
+                }
+                title={tm.name}
+                className={`text-[10px] uppercase tracking-widest font-bold px-2 py-1 rounded-sm border transition-colors ${
+                  selectedTeam === tm.code
+                    ? "bg-brand-sky text-pitch-bg border-brand-sky"
+                    : "bg-pitch-bg text-slate-400 border-pitch-line hover:text-white"
+                }`}
+              >
+                {tm.code}
+              </button>
+            ))}
+          </div>
           <div className="relative mb-3">
             <Search className="absolute left-3 top-2.5 text-slate-500" size={16} />
             <input

@@ -198,6 +198,7 @@ export const NL: Record<string, string> = {
   "Save Topscorer Picks": "Topscoorders opslaan",
   "Picks locked": "Keuzes gesloten",
   "Search player or team…": "Zoek speler of land…",
+  "All": "Alle",
   "No players match.": "Geen spelers gevonden.",
   "— Select team —": "— Kies team —",
   "Picked:": "Gekozen:",
