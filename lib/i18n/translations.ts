@@ -190,6 +190,8 @@ export const NL: Record<string, string> = {
     "Eén team uit Pot 3 of Pot 4. Achtste finale = 10 · Kwartfinale = +10 · Halve finale = +15 (max 35)",
   "A 'dark horse' is an underdog — a team that's not expected to go far. Pick one from Pot 3 or Pot 4 (the lower-ranked half of the draw, by FIFA ranking). If they surprise everyone and reach the knockout rounds, you score big bonus points.":
     "A 'dark horse' is an underdog; a team that's not expected to go far. Pick one lower-ranked team and if they surprise everyone and reach the knockout rounds, you score big bonus points.",
+  "A 'dark horse' is an underdog; a team that's not expected to go far. Pick one lower-ranked team and if they surprise everyone and reach the knockout rounds, you score big bonus points.":
+    "Een 'dark horse' is een outsider; een team dat niet wordt verwacht ver te komen. Kies een lager geplaatst team en als ze iedereen verrassen en de knockoutronde halen, scoor je flink wat bonuspunten.",
   "Scoring: R16 = 10 · QF = +10 · SF = +15 (max 35)":
     "Punten: Achtste finale = 10 · Kwartfinale = +10 · Halve finale = +15 (max 35)",
   "Pick 3 players. 2 pts per goal · +10 if one of your picks wins the Golden Boot.":

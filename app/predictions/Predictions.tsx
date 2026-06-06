@@ -262,7 +262,7 @@ export function Predictions() {
         </div>
         <p className="text-[11px] text-slate-300 mb-2 leading-relaxed">
           {t(
-            "A 'dark horse' is an underdog; a team that's not expected to go far. Pick one lower-ranked and if they surprise everyone and reach the knockout rounds, you score big bonus points."
+            "A 'dark horse' is an underdog; a team that's not expected to go far. Pick one lower-ranked team and if they surprise everyone and reach the knockout rounds, you score big bonus points."
           )}
         </p>
         <p className="text-[11px] text-slate-500 font-mono mb-3">
