@@ -6,7 +6,7 @@ import { BrandHeader } from "./BrandHeader";
 import { supabase } from "../lib/supabase";
 import { LogOut, User, ChevronDown, Settings, Globe } from "lucide-react";
 import { useActiveParticipant } from "./ActiveParticipant";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useT } from "./I18n";
 import { LANGS, type Lang } from "../lib/i18n/translations";
 import { isWerk } from "../lib/work-tags";
@@ -16,6 +16,21 @@ export function Nav({ email, isAdmin }: { email: string | null; isAdmin: boolean
   const { profiles, activeKey, activeProfile, setActiveKey } = useActiveParticipant();
   const { t, lang, setLang } = useT();
   const [open, setOpen] = useState(false);
+  // Bracket tab is hidden until at least one R32 match has teams assigned
+  // (the admin fills these in after the group stage finishes).
+  const [bracketVisible, setBracketVisible] = useState(false);
+
+  useEffect(() => {
+    supabase
+      .from("matches")
+      .select("id", { count: "exact", head: true })
+      .eq("stage", "R32")
+      .not("home_team_id", "is", null)
+      .limit(1)
+      .then(({ count }) => {
+        if ((count ?? 0) > 0) setBracketVisible(true);
+      });
+  }, []);
 
   // The work instance is mostly used on desktop, where an explicit Dashboard
   // tab makes navigation faster than relying on the brand logo. The family
@@ -25,7 +40,7 @@ export function Nav({ email, isAdmin }: { email: string | null; isAdmin: boolean
     { href: "/matches", label: t("Matches") },
     { href: "/groups", label: t("Groups") },
     { href: "/predictions", label: t("Predictions") },
-    { href: "/bracket", label: t("Bracket") },
+    ...(bracketVisible ? [{ href: "/bracket", label: t("Bracket") }] : []),
     { href: "/leaderboard", label: t("Leaderboard") },
     { href: "/stats", label: t("Stats") },
     { href: "/rules", label: t("Rules") },
