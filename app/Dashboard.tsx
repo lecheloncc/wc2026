@@ -36,9 +36,20 @@ type DeadlineState = {
 export function Dashboard() {
   const { activeKey, activeProfile } = useActiveParticipant();
   const { t, stageName } = useT();
-  const [totals, setTotals] = useState<{ total: number; rank: number | null }>({
+  const [totals, setTotals] = useState<{
+    total: number;
+    rank: number | null;
+    match_points: number;
+    group_points: number;
+    topscorer_points: number;
+    tournament_points: number;
+  }>({
     total: 0,
     rank: null,
+    match_points: 0,
+    group_points: 0,
+    topscorer_points: 0,
+    tournament_points: 0,
   });
   const [upcomingMatches, setUpcomingMatches] = useState<NextMatch[]>([]);
   const [deadline, setDeadline] = useState<DeadlineState>({
@@ -55,7 +66,7 @@ export function Dashboard() {
 
       const { data: board } = await supabase
         .from("leaderboard_cache")
-        .select("user_email,total")
+        .select("user_email,total,match_points,group_points,topscorer_points,tournament_points")
         .order("total", { ascending: false });
       if (board) {
         const idx = board.findIndex((r) => r.user_email === e);
@@ -63,6 +74,10 @@ export function Dashboard() {
         setTotals({
           total: mine?.total ?? 0,
           rank: idx >= 0 ? idx + 1 : null,
+          match_points: mine?.match_points ?? 0,
+          group_points: mine?.group_points ?? 0,
+          topscorer_points: mine?.topscorer_points ?? 0,
+          tournament_points: mine?.tournament_points ?? 0,
         });
       }
 
@@ -170,6 +185,20 @@ export function Dashboard() {
           <Stat label={t("Rank")} value={totals.rank ?? "—"} />
         </div>
       </section>
+
+      {totals.total > 0 && (
+        <section className="bg-pitch-card border border-pitch-line rounded-sm p-6">
+          <p className="text-[10px] uppercase tracking-widest text-slate-500 font-mono mb-3 flex items-center gap-2">
+            <Trophy size={12} /> {t("Points breakdown")}
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <BreakdownStat label={t("Matches")} value={totals.match_points} />
+            <BreakdownStat label={t("Groups")} value={totals.group_points} />
+            <BreakdownStat label={t("Topscorers")} value={totals.topscorer_points} />
+            <BreakdownStat label={t("Bonus")} value={totals.tournament_points} />
+          </div>
+        </section>
+      )}
 
       <DeadlineCard state={deadline} />
 
@@ -326,6 +355,17 @@ function Stat({ label, value }: { label: string; value: string | number }) {
         {label}
       </p>
       <p className="text-2xl font-black text-white mt-1">{value}</p>
+    </div>
+  );
+}
+
+function BreakdownStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="bg-pitch-bg border border-pitch-line rounded-sm px-3 py-2.5">
+      <p className="text-[9px] uppercase tracking-widest text-slate-500 font-mono">
+        {label}
+      </p>
+      <p className="text-lg font-black text-brand-sky mt-0.5">{value}</p>
     </div>
   );
 }

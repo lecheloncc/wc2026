@@ -70,6 +70,8 @@ export const NL: Record<string, string> = {
   // Dashboard
   "Welcome back": "Welkom terug",
   "Total Points": "Totaal punten",
+  "Points breakdown": "Puntenverdeling",
+  "Topscorers": "Topscoorders",
   "Rank": "Positie",
   "Next Match": "Volgende wedstrijd",
   "Next Matches": "Volgende wedstrijden",
