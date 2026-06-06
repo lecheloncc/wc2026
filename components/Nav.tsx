@@ -27,6 +27,7 @@ export function Nav({ email, isAdmin }: { email: string | null; isAdmin: boolean
     { href: "/predictions", label: t("Predictions") },
     { href: "/bracket", label: t("Bracket") },
     { href: "/leaderboard", label: t("Leaderboard") },
+    { href: "/stats", label: t("Stats") },
     { href: "/rules", label: t("Rules") },
   ];
 
