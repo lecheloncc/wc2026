@@ -24,11 +24,11 @@ type Row = {
 
 type Mode = "individual" | "by-department" | "by-country";
 
-// rank, player, [dept, country]?, paid, match, group, scorer, bonus, total
+// rank, player, [dept, country]?, paid, total
 const COLS_DEFAULT =
-  "grid-cols-[28px_1fr_28px_55px_55px_55px_55px_60px] gap-x-2";
+  "grid-cols-[28px_1fr_28px_60px] gap-x-2";
 const COLS_WERK =
-  "grid-cols-[28px_1fr_70px_70px_28px_55px_55px_55px_55px_60px] gap-x-2";
+  "grid-cols-[28px_1fr_70px_70px_28px_60px] gap-x-2";
 const COLS_GROUP = "grid-cols-[28px_1fr_55px_60px] gap-x-2";
 
 type CountryRow = (typeof COUNTRIES)[number];
@@ -187,10 +187,6 @@ function IndividualTable({
         <span className="text-center" title={t("Paid")}>
           {t("Paid")}
         </span>
-        <span className="text-right">{t("Match")}</span>
-        <span className="text-right">{t("Group")}</span>
-        <span className="text-right">{t("Scorer")}</span>
-        <span className="text-right">{t("Bonus")}</span>
         <span className="text-right">{t("Total")}</span>
       </div>
       {rows.length === 0 && (
@@ -245,10 +241,6 @@ function IndividualTable({
                 <Circle size={10} className="text-slate-600" />
               )}
             </span>
-            <span className="text-right font-mono text-xs">{r.match_points}</span>
-            <span className="text-right font-mono text-xs">{r.group_points}</span>
-            <span className="text-right font-mono text-xs">{r.topscorer_points}</span>
-            <span className="text-right font-mono text-xs">{r.tournament_points}</span>
             <span className="text-right font-bold">{r.total}</span>
           </div>
         );
