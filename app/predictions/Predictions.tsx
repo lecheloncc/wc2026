@@ -80,7 +80,8 @@ export function Predictions() {
         supabase
           .from("players")
           .select("id, name, team:team_id(name, flag_emoji, fifa_code)")
-          .order("name"),
+          .order("name")
+          .range(0, 1499),
         supabase
           .from("topscorer_picks")
           .select("player_ids")
