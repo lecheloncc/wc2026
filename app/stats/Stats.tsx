@@ -485,6 +485,107 @@ export function Stats() {
         ))}
       </div>
 
+      {/* ── Match prediction accuracy (top section) ── */}
+      {hasResults && (
+        <Section icon={<Target size={14} />} title={t("Match prediction accuracy")}>
+          <p className="text-[10px] text-slate-500 -mt-1">{t("Tap a match to see everyone's predictions")}</p>
+          <div className="space-y-0 mt-1">
+            {/* Header */}
+            <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-2 px-1 pb-1 text-[9px] uppercase tracking-widest text-slate-500 font-mono border-b border-pitch-line">
+              <span>{t("Match")}</span>
+              <span className="text-center w-12">{t("Exact")}</span>
+              <span className="text-center w-14">{t("Correct outcome")}</span>
+              <span className="text-center w-10">{t("Wrong")}</span>
+            </div>
+            {matchAccuracy.slice(0, 20).map(({ match, total, exact, correctOutcome, wrong }) => {
+              const home = teamById.get(match.home_team_id!);
+              const away = teamById.get(match.away_team_id!);
+              const isExpanded = expandedMatches.has(match.id);
+              const detail = isExpanded ? getMatchDetail(match.id) : [];
+              const exactRows = detail.filter((d) => d.category === "exact");
+              const correctRows = detail.filter((d) => d.category === "correct");
+              const wrongRows = detail.filter((d) => d.category === "wrong");
+              return (
+                <div key={match.id}>
+                  <button
+                    onClick={() =>
+                      setExpandedMatches((prev) => {
+                        const next = new Set(prev);
+                        next.has(match.id) ? next.delete(match.id) : next.add(match.id);
+                        return next;
+                      })
+                    }
+                    className="w-full grid grid-cols-[1fr_auto_auto_auto] gap-x-2 px-1 py-1.5 text-xs border-b border-pitch-line/40 items-center hover:bg-pitch-bg/50 transition-colors cursor-pointer text-left"
+                  >
+                    <div className="min-w-0 flex items-center gap-1">
+                      {isExpanded ? <ChevronUp size={10} className="text-slate-500 shrink-0" /> : <ChevronDown size={10} className="text-slate-500 shrink-0" />}
+                      <span className="text-slate-300 truncate text-[11px]">
+                        {home?.flag_emoji} {home?.name ?? "?"} {match.home_score}–{match.away_score} {away?.name ?? "?"} {away?.flag_emoji}
+                      </span>
+                    </div>
+                    <div className="w-12 text-center">
+                      <span className="text-xs font-mono font-bold text-brand-gold">{pct(exact, total)}</span>
+                    </div>
+                    <div className="w-14 text-center">
+                      <span className="text-xs font-mono text-brand-sky">{pct(correctOutcome, total)}</span>
+                    </div>
+                    <div className="w-10 text-center">
+                      <span className="text-xs font-mono text-slate-500">{pct(wrong, total)}</span>
+                    </div>
+                  </button>
+                  {isExpanded && (
+                    <div className="bg-pitch-bg border-x border-b border-pitch-line/40 px-3 py-2 space-y-2">
+                      {exactRows.length > 0 && (
+                        <div>
+                          <p className="text-[9px] uppercase tracking-widest font-mono font-bold text-brand-gold mb-1">🎯 {t("Exact score")} ({exactRows.length})</p>
+                          <div className="space-y-0.5">
+                            {exactRows.map((r) => (
+                              <div key={r.name} className="flex items-center justify-between text-[11px]">
+                                <span className="text-slate-200">{r.name}</span>
+                                <span className="font-mono text-brand-gold">{r.pred} · {r.pts} pts</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {correctRows.length > 0 && (
+                        <div>
+                          <p className="text-[9px] uppercase tracking-widest font-mono font-bold text-brand-sky mb-1">✓ {t("Correct outcome")} ({correctRows.length})</p>
+                          <div className="space-y-0.5">
+                            {correctRows.map((r) => (
+                              <div key={r.name} className="flex items-center justify-between text-[11px]">
+                                <span className="text-slate-300">{r.name}</span>
+                                <span className="font-mono text-brand-sky">{r.pred} · {r.pts} pts</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {wrongRows.length > 0 && (
+                        <div>
+                          <p className="text-[9px] uppercase tracking-widest font-mono font-bold text-slate-500 mb-1">✗ {t("Wrong")} ({wrongRows.length})</p>
+                          <div className="space-y-0.5">
+                            {wrongRows.map((r) => (
+                              <div key={r.name} className="flex items-center justify-between text-[11px]">
+                                <span className="text-slate-500">{r.name}</span>
+                                <span className="font-mono text-slate-600">{r.pred} · {r.pts} pts</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {detail.length === 0 && (
+                        <p className="text-[10px] text-slate-600">{t("No predictions for this match")}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </Section>
+      )}
+
       {/* ── 2 + 3. Champion & Finalist picks (side by side on md+) ── */}
       <div className="grid md:grid-cols-2 gap-4">
         <Section icon={<Trophy size={14} />} title={t("Champion picks")}>
@@ -601,107 +702,6 @@ export function Stats() {
           })}
         </div>
       </Section>
-
-      {/* ── 7. Match prediction accuracy ── */}
-      {hasResults && (
-        <Section icon={<Target size={14} />} title={t("Match prediction accuracy")}>
-          <p className="text-[10px] text-slate-500 -mt-1">{t("Tap a match to see everyone's predictions")}</p>
-          <div className="space-y-0 mt-1">
-            {/* Header */}
-            <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-2 px-1 pb-1 text-[9px] uppercase tracking-widest text-slate-500 font-mono border-b border-pitch-line">
-              <span>{t("Match")}</span>
-              <span className="text-center w-12">{t("Exact")}</span>
-              <span className="text-center w-14">{t("Correct outcome")}</span>
-              <span className="text-center w-10">{t("Wrong")}</span>
-            </div>
-            {matchAccuracy.slice(0, 20).map(({ match, total, exact, correctOutcome, wrong }) => {
-              const home = teamById.get(match.home_team_id!);
-              const away = teamById.get(match.away_team_id!);
-              const isExpanded = expandedMatches.has(match.id);
-              const detail = isExpanded ? getMatchDetail(match.id) : [];
-              const exactRows = detail.filter((d) => d.category === "exact");
-              const correctRows = detail.filter((d) => d.category === "correct");
-              const wrongRows = detail.filter((d) => d.category === "wrong");
-              return (
-                <div key={match.id}>
-                  <button
-                    onClick={() =>
-                      setExpandedMatches((prev) => {
-                        const next = new Set(prev);
-                        next.has(match.id) ? next.delete(match.id) : next.add(match.id);
-                        return next;
-                      })
-                    }
-                    className="w-full grid grid-cols-[1fr_auto_auto_auto] gap-x-2 px-1 py-1.5 text-xs border-b border-pitch-line/40 items-center hover:bg-pitch-bg/50 transition-colors cursor-pointer text-left"
-                  >
-                    <div className="min-w-0 flex items-center gap-1">
-                      {isExpanded ? <ChevronUp size={10} className="text-slate-500 shrink-0" /> : <ChevronDown size={10} className="text-slate-500 shrink-0" />}
-                      <span className="text-slate-300 truncate text-[11px]">
-                        {home?.flag_emoji} {home?.name ?? "?"} {match.home_score}–{match.away_score} {away?.name ?? "?"} {away?.flag_emoji}
-                      </span>
-                    </div>
-                    <div className="w-12 text-center">
-                      <span className="text-xs font-mono font-bold text-brand-gold">{pct(exact, total)}</span>
-                    </div>
-                    <div className="w-14 text-center">
-                      <span className="text-xs font-mono text-brand-sky">{pct(correctOutcome, total)}</span>
-                    </div>
-                    <div className="w-10 text-center">
-                      <span className="text-xs font-mono text-slate-500">{pct(wrong, total)}</span>
-                    </div>
-                  </button>
-                  {isExpanded && (
-                    <div className="bg-pitch-bg border-x border-b border-pitch-line/40 px-3 py-2 space-y-2">
-                      {exactRows.length > 0 && (
-                        <div>
-                          <p className="text-[9px] uppercase tracking-widest font-mono font-bold text-brand-gold mb-1">🎯 {t("Exact score")} ({exactRows.length})</p>
-                          <div className="space-y-0.5">
-                            {exactRows.map((r) => (
-                              <div key={r.name} className="flex items-center justify-between text-[11px]">
-                                <span className="text-slate-200">{r.name}</span>
-                                <span className="font-mono text-brand-gold">{r.pred} · {r.pts} pts</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {correctRows.length > 0 && (
-                        <div>
-                          <p className="text-[9px] uppercase tracking-widest font-mono font-bold text-brand-sky mb-1">✓ {t("Correct outcome")} ({correctRows.length})</p>
-                          <div className="space-y-0.5">
-                            {correctRows.map((r) => (
-                              <div key={r.name} className="flex items-center justify-between text-[11px]">
-                                <span className="text-slate-300">{r.name}</span>
-                                <span className="font-mono text-brand-sky">{r.pred} · {r.pts} pts</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {wrongRows.length > 0 && (
-                        <div>
-                          <p className="text-[9px] uppercase tracking-widest font-mono font-bold text-slate-500 mb-1">✗ {t("Wrong")} ({wrongRows.length})</p>
-                          <div className="space-y-0.5">
-                            {wrongRows.map((r) => (
-                              <div key={r.name} className="flex items-center justify-between text-[11px]">
-                                <span className="text-slate-500">{r.name}</span>
-                                <span className="font-mono text-slate-600">{r.pred} · {r.pts} pts</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {detail.length === 0 && (
-                        <p className="text-[10px] text-slate-600">{t("No predictions for this match")}</p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </Section>
-      )}
 
       {/* ── 8. Points by category ── */}
       {hasResults && avgPoints && (
