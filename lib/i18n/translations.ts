@@ -331,7 +331,7 @@ export const NL: Record<string, string> = {
   "Finalist picks": "Finalist-keuzes",
   "Combined finalist appearances per team": "Gecombineerde finalist-keuzes per team",
   "Dark horse picks": "Dark horse-keuzes",
-  "Only Pot 3 / Pot 4 teams eligible": "Alleen teams uit Pot 3 of Pot 4 komen in aanmerking",
+  "Only low-ranked teams eligible": "Alleen laag gerankte teams komen in aanmerking",
   "Topscorer ownership": "Topscoorder-keuzes",
   "3 picks per participant": "3 keuzes per deelnemer",
   "By ownership": "Op keuzes",

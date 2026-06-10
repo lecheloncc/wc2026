@@ -404,7 +404,6 @@ export function Stats() {
       const team = teamById.get(id);
       return {
         label: `${team?.flag_emoji ?? ""} ${team?.name ?? id}`,
-        sublabel: team?.pot ? `Pot ${team.pot}` : undefined,
         value: count,
       };
     });
@@ -608,7 +607,7 @@ export function Stats() {
 
       {/* ── 4. Dark Horse picks ── */}
       <Section icon={<Star size={14} />} title={t("Dark horse picks")}>
-        <p className="text-[10px] text-slate-500 -mt-1">{t("Only Pot 3 / Pot 4 teams eligible")}</p>
+        <p className="text-[10px] text-slate-500 -mt-1">{t("Only low-ranked teams eligible")}</p>
         <StatsBarChart
           items={darkHorseItems}
           barColor="bg-brand-sky"
