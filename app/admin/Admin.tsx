@@ -6,6 +6,8 @@ import { computeTotals } from "../../lib/scoring/totals";
 import { deriveTournamentResults } from "../../lib/scoring/tournament";
 import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { GoalEntry } from "./GoalEntry";
+import { GroupResultsEntry } from "./GroupResultsEntry";
+import { GoldenBootEntry } from "./GoldenBootEntry";
 import { Participants } from "./Participants";
 import { Progress } from "./Progress";
 
@@ -100,6 +102,7 @@ export function Admin() {
         { data: tp },
         { data: pg },
         { data: tn },
+        gbRes,
       ] = await Promise.all([
         supabase.from("matches").select("id, stage, home_score, away_score"),
         supabase
@@ -111,6 +114,7 @@ export function Admin() {
         supabase.from("topscorer_picks").select("user_email, player_ids"),
         supabase.from("player_goals").select("player_id"),
         supabase.from("tournament_picks").select("*"),
+        supabase.from("golden_boot_winners").select("player_id"),
       ]);
 
       const tournamentResults = deriveTournamentResults(msFull ?? []);
@@ -125,14 +129,21 @@ export function Admin() {
       const goalsByPlayer: Record<number, number> = {};
       for (const g of pg ?? []) goalsByPlayer[g.player_id] = (goalsByPlayer[g.player_id] ?? 0) + 1;
 
-      let topGoals = 0;
-      for (const n of Object.values(goalsByPlayer)) if (n > topGoals) topGoals = n;
-      const goldenBootIds =
-        topGoals > 0
-          ? Object.keys(goalsByPlayer)
-              .filter((k) => goalsByPlayer[Number(k)] === topGoals)
-              .map(Number)
-          : [];
+      // Golden Boot: use admin override if set, otherwise fall back to max goals
+      const gbOverride = (gbRes.data ?? []).map((r) => r.player_id);
+      let goldenBootIds: number[];
+      if (gbOverride.length > 0) {
+        goldenBootIds = gbOverride;
+      } else {
+        let topGoals = 0;
+        for (const n of Object.values(goalsByPlayer)) if (n > topGoals) topGoals = n;
+        goldenBootIds =
+          topGoals > 0
+            ? Object.keys(goalsByPlayer)
+                .filter((k) => goalsByPlayer[Number(k)] === topGoals)
+                .map(Number)
+            : [];
+      }
 
       const totals = computeTotals({
         matches: (ms ?? []) as Parameters<typeof computeTotals>[0]["matches"],
@@ -219,7 +230,11 @@ export function Admin() {
 
       <Progress />
 
+      <GroupResultsEntry />
+
       <GoalEntry matches={matches} />
+
+      <GoldenBootEntry />
 
       <div>
         <h2 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-2">
