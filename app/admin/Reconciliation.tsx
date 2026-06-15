@@ -111,20 +111,9 @@ export function Reconciliation() {
         goalCounts[g.player_id] = (goalCounts[g.player_id] ?? 0) + 1;
       setGoalsByPlayer(goalCounts);
 
-      const override = (gbRes.data ?? []).map((r) => r.player_id);
-      if (override.length > 0) {
-        setGoldenBootIds(override);
-      } else {
-        let topGoals = 0;
-        for (const n of Object.values(goalCounts)) if (n > topGoals) topGoals = n;
-        setGoldenBootIds(
-          topGoals > 0
-            ? Object.keys(goalCounts)
-                .filter((k) => goalCounts[Number(k)] === topGoals)
-                .map(Number)
-            : []
-        );
-      }
+      // Golden Boot bonus only applies once admin explicitly sets the winner.
+      // No fallback to max-goals — the bonus is a tournament-end award.
+      setGoldenBootIds((gbRes.data ?? []).map((r) => r.player_id));
 
       setTournamentResults(deriveTournamentResults(matchesRes.data ?? []));
       setLoading(false);

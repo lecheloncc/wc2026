@@ -130,21 +130,9 @@ export function Admin() {
       const goalsByPlayer: Record<number, number> = {};
       for (const g of pg ?? []) goalsByPlayer[g.player_id] = (goalsByPlayer[g.player_id] ?? 0) + 1;
 
-      // Golden Boot: use admin override if set, otherwise fall back to max goals
-      const gbOverride = (gbRes.data ?? []).map((r) => r.player_id);
-      let goldenBootIds: number[];
-      if (gbOverride.length > 0) {
-        goldenBootIds = gbOverride;
-      } else {
-        let topGoals = 0;
-        for (const n of Object.values(goalsByPlayer)) if (n > topGoals) topGoals = n;
-        goldenBootIds =
-          topGoals > 0
-            ? Object.keys(goalsByPlayer)
-                .filter((k) => goalsByPlayer[Number(k)] === topGoals)
-                .map(Number)
-            : [];
-      }
+      // Golden Boot: bonus only applies once admin explicitly sets the winner
+      // via GoldenBootEntry. During the tournament this stays empty → no bonus.
+      const goldenBootIds = (gbRes.data ?? []).map((r) => r.player_id);
 
       const totals = computeTotals({
         matches: (ms ?? []) as Parameters<typeof computeTotals>[0]["matches"],
@@ -159,17 +147,22 @@ export function Admin() {
       });
 
       if (totals.length > 0) {
-        await supabase.from("leaderboard_cache").upsert(
-          totals.map((t) => ({
-            user_email: t.email,
-            match_points: t.matchPoints,
-            group_points: t.groupPoints,
-            topscorer_points: t.topscorerPoints,
-            tournament_points: t.tournamentPoints,
-            total: t.total,
-            updated_at: new Date().toISOString(),
-          }))
-        );
+        const { error: upsertError } = await supabase
+          .from("leaderboard_cache")
+          .upsert(
+            totals.map((t) => ({
+              user_email: t.email,
+              match_points: t.matchPoints,
+              group_points: t.groupPoints,
+              topscorer_points: t.topscorerPoints,
+              tournament_points: t.tournamentPoints,
+              total: t.total,
+              updated_at: new Date().toISOString(),
+            }))
+          );
+        if (upsertError) {
+          throw new Error(`leaderboard_cache upsert FAILED: ${upsertError.message}`);
+        }
       }
       setMsg(`Recomputed leaderboard for ${totals.length} user(s).`);
     } catch (e) {
