@@ -105,17 +105,18 @@ export function Admin() {
         { data: tn },
         gbRes,
       ] = await Promise.all([
-        supabase.from("matches").select("id, stage, home_score, away_score"),
+        supabase.from("matches").select("id, stage, home_score, away_score").range(0, 9999),
         supabase
           .from("matches")
-          .select("stage, status, home_team_id, away_team_id, home_score, away_score"),
-        supabase.from("match_predictions").select("user_email, match_id, pred_home, pred_away"),
-        supabase.from("group_predictions").select("user_email, group_code, order_team_ids"),
-        supabase.from("group_results").select("group_code, order_team_ids"),
-        supabase.from("topscorer_picks").select("user_email, player_ids"),
-        supabase.from("player_goals").select("player_id"),
-        supabase.from("tournament_picks").select("*"),
-        supabase.from("golden_boot_winners").select("player_id"),
+          .select("stage, status, home_team_id, away_team_id, home_score, away_score")
+          .range(0, 9999),
+        supabase.from("match_predictions").select("user_email, match_id, pred_home, pred_away").range(0, 19999),
+        supabase.from("group_predictions").select("user_email, group_code, order_team_ids").range(0, 9999),
+        supabase.from("group_results").select("group_code, order_team_ids").range(0, 9999),
+        supabase.from("topscorer_picks").select("user_email, player_ids").range(0, 9999),
+        supabase.from("player_goals").select("player_id").range(0, 9999),
+        supabase.from("tournament_picks").select("*").range(0, 9999),
+        supabase.from("golden_boot_winners").select("player_id").range(0, 9999),
       ]);
 
       const tournamentResults = deriveTournamentResults(msFull ?? []);
