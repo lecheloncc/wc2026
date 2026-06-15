@@ -10,6 +10,7 @@ import { GroupResultsEntry } from "./GroupResultsEntry";
 import { GoldenBootEntry } from "./GoldenBootEntry";
 import { Participants } from "./Participants";
 import { Progress } from "./Progress";
+import { Reconciliation } from "./Reconciliation";
 
 const ADMIN_EMAIL = (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "").toLowerCase();
 
@@ -235,6 +236,8 @@ export function Admin() {
       <GoalEntry matches={matches} />
 
       <GoldenBootEntry />
+
+      <Reconciliation />
 
       <div>
         <h2 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-2">
