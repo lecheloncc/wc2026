@@ -5,6 +5,7 @@ import Link from "next/link";
 import { supabase } from "../lib/supabase";
 import { useActiveParticipant } from "../components/ActiveParticipant";
 import { useT } from "../components/I18n";
+import { MyPointsDetail } from "./MyPointsDetail";
 import {
   Calendar,
   Target,
@@ -199,6 +200,8 @@ export function Dashboard() {
           </div>
         </section>
       )}
+
+      {activeKey && <MyPointsDetail participantKey={activeKey} />}
 
       <DeadlineCard state={deadline} />
 

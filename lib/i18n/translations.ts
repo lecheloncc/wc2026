@@ -226,6 +226,20 @@ export const NL: Record<string, string> = {
   "No scores yet. Come back after the opening match!":
     "Nog geen punten. Kom terug na de openingswedstrijd!",
 
+  // My points detail
+  "See points details": "Bekijk puntenoverzicht",
+  "Pred": "Pred",
+  "Actual": "Actueel",
+  "Pts": "Pts",
+  "pts": "pts",
+  "No match predictions yet.": "Nog geen wedstrijdvoorspellingen.",
+  "No group predictions yet.": "Nog geen groepsvoorspellingen.",
+  "No topscorer picks.": "Geen topscoorderkeuzes.",
+  "No bonus picks.": "Geen bonusvoorspellingen.",
+  "Not scored yet": "Nog niet gescoord",
+  "Your pick": "Jouw keuze",
+  "Golden Boot bonus": "Golden Boot bonus",
+
   // Bracket
   "Knockout Bracket": "Knockout-schema",
   "Scoring multipliers: R16 ×1.5 · QF ×2 · SF ×3 · 3rd/Final ×4.":
