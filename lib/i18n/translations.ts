@@ -333,9 +333,11 @@ export const NL: Record<string, string> = {
 
   // Inline match editing
   "Hide predicted": "Verberg voorspeld",
+  "Hide played": "Verberg gespeeld",
   "Show all": "Toon alles",
   "voorspeld": "voorspeld",
   "All matches predicted!": "Alle wedstrijden voorspeld!",
+  "All matches played!": "Alle wedstrijden zijn gespeeld!",
   "No matches yet.": "Nog geen wedstrijden.",
   "Group stage. Knockout matches live on the Bracket page.":
     "Groepsfase. Knockout-wedstrijden staan op de Knockout-pagina.",

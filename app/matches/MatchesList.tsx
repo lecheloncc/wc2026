@@ -29,7 +29,7 @@ export function MatchesList() {
   const { t, stageName } = useT();
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
-  const [hidePredicted, setHidePredicted] = useState(false);
+  const [hidePlayed, setHidePlayed] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -78,8 +78,8 @@ export function MatchesList() {
     [rows]
   );
   const visibleRows = useMemo(
-    () => (hidePredicted ? rows.filter((r) => r.pred_home == null) : rows),
-    [rows, hidePredicted]
+    () => (hidePlayed ? rows.filter((r) => r.home_score == null) : rows),
+    [rows, hidePlayed]
   );
 
   function onSavedRow(matchId: number, pred: { pred_home: number; pred_away: number }) {
@@ -108,11 +108,11 @@ export function MatchesList() {
           </p>
         </div>
         <button
-          onClick={() => setHidePredicted((v) => !v)}
+          onClick={() => setHidePlayed((v) => !v)}
           className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold text-slate-300 hover:text-white border border-pitch-line rounded-sm px-3 py-1.5"
         >
-          {hidePredicted ? <Eye size={12} /> : <EyeOff size={12} />}
-          {hidePredicted ? t("Show all") : t("Hide predicted")}
+          {hidePlayed ? <Eye size={12} /> : <EyeOff size={12} />}
+          {hidePlayed ? t("Show all") : t("Hide played")}
         </button>
       </div>
       <div className="flex items-center gap-2">
@@ -130,8 +130,8 @@ export function MatchesList() {
       <div className="space-y-2 pt-2">
         {visibleRows.length === 0 && (
           <p className="text-slate-500 text-xs px-3 py-6 text-center">
-            {hidePredicted
-              ? t("All matches predicted!")
+            {hidePlayed
+              ? t("All matches played!")
               : t("No matches yet.")}
           </p>
         )}
