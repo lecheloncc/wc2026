@@ -165,7 +165,10 @@ export function Stats() {
       ] = await Promise.all([
         supabase.from("teams").select("id, name, group_code, flag_emoji, pot"),
         supabase.from("players").select("id, name, team_id"),
-        supabase.from("matches").select("id, stage, group_code, home_team_id, away_team_id, kickoff, home_score, away_score, status"),
+        supabase
+          .from("matches")
+          .select("id, stage, group_code, home_team_id, away_team_id, kickoff, home_score, away_score, status")
+          .order("kickoff", { ascending: false }),
         supabase.from("tournament_picks").select("user_email, champion_team_id, finalist_a_team_id, finalist_b_team_id, dark_horse_team_id"),
         supabase.from("group_predictions").select("user_email, group_code, order_team_ids"),
         supabase.from("match_predictions").select("user_email, match_id, pred_home, pred_away"),
@@ -496,7 +499,7 @@ export function Stats() {
               <span className="text-center w-14">{t("Correct outcome")}</span>
               <span className="text-center w-10">{t("Wrong")}</span>
             </div>
-            {matchAccuracy.slice(0, 20).map(({ match, total, exact, correctOutcome, wrong }) => {
+            {matchAccuracy.map(({ match, total, exact, correctOutcome, wrong }) => {
               const home = teamById.get(match.home_team_id!);
               const away = teamById.get(match.away_team_id!);
               const isExpanded = expandedMatches.has(match.id);
