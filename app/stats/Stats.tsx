@@ -448,7 +448,7 @@ export function Stats() {
   // Top scoring players (actual goals)
   const topScoringPlayers = [...goalsByPlayer.entries()]
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 20)
+    .slice(0, 10)
     .map(([pid, goals]) => {
       const player = playerById.get(pid);
       const team = player ? teamById.get(player.team_id) : undefined;
