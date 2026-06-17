@@ -11,6 +11,7 @@ import {
 import { TopscorerPicks, type Player } from "./TopscorerPicks";
 import { useActiveParticipant } from "../../components/ActiveParticipant";
 import { useT } from "../../components/I18n";
+import { useNow } from "../../hooks/useNow";
 
 type Team = {
   id: number;
@@ -124,7 +125,8 @@ export function Predictions() {
     })();
   }, []);
 
-  const locked = lockTime != null && lockTime <= Date.now();
+  const now = useNow();
+  const locked = lockTime != null && lockTime <= now;
   const teamById = useMemo(() => new Map(teams.map((t) => [t.id, t])), [teams]);
 
   const allTeams = useMemo(
@@ -151,6 +153,11 @@ export function Predictions() {
     picks.darkHorseTeamId != null;
 
   async function saveAll() {
+    // Layer 2 guard: re-check the global lock at the moment of save
+    if (lockTime != null && Date.now() >= lockTime) {
+      setSaveError(t("Predictions have just locked. Refresh to see the live results."));
+      return;
+    }
     setSaveError(null);
     setSaved(false);
     setSaving(true);

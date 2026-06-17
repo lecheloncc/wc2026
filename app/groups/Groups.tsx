@@ -7,6 +7,7 @@ import { scoreGroupOrder } from "../../lib/scoring/groups";
 import { computeGroupStandings } from "../../lib/scoring/groupStandings";
 import { useActiveParticipant } from "../../components/ActiveParticipant";
 import { useT } from "../../components/I18n";
+import { useNow } from "../../hooks/useNow";
 
 type Team = {
   id: number;
@@ -23,7 +24,9 @@ export function Groups() {
   const [predictions, setPredictions] = useState<Record<string, number[]>>({});
   const [savedPredictions, setSavedPredictions] = useState<Record<string, number[]>>({});
   const [actuals, setActuals] = useState<Record<string, number[]>>({});
-  const [locks, setLocks] = useState<Record<string, boolean>>({});
+  const [openingKickoff, setOpeningKickoff] = useState<number | null>(null);
+  const now = useNow();
+  const globalLocked = openingKickoff != null && openingKickoff <= now;
   const [savedGroup, setSavedGroup] = useState<string | null>(null);
   const [errorGroup, setErrorGroup] = useState<{ group: string; msg: string } | null>(null);
   // Per-group ordered list of team IDs derived from the user's match
@@ -90,19 +93,12 @@ export function Groups() {
 
       // Lock ALL groups at the tournament's opening match — group order picks
       // must be in before the tournament starts (same rule as topscorer picks).
-      let openingKickoff: number | null = null;
+      let firstKickoff: number | null = null;
       for (const m of firsts ?? []) {
         const k = new Date(m.kickoff).getTime();
-        if (openingKickoff == null || k < openingKickoff) openingKickoff = k;
+        if (firstKickoff == null || k < firstKickoff) firstKickoff = k;
       }
-      const now = Date.now();
-      const tournamentLocked = openingKickoff != null && openingKickoff <= now;
-      const locked: Record<string, boolean> = {};
-      for (const m of firsts ?? []) {
-        if (!m.group_code) continue;
-        locked[m.group_code] = tournamentLocked;
-      }
-      setLocks(locked);
+      setOpeningKickoff(firstKickoff);
 
       // Build per-group expected standings from the user's match predictions.
       // Only valid if every group match has a saved prediction with team ids.
@@ -175,6 +171,11 @@ export function Groups() {
   async function save(group: string) {
     const order = predictions[group];
     if (!order || order.length !== 4) return;
+    // Layer 2 guard: re-check the global lock at the moment of save
+    if (openingKickoff != null && Date.now() >= openingKickoff) {
+      setErrorGroup({ group, msg: t("Predictions have just locked. Refresh to see the live results.") });
+      return;
+    }
     setErrorGroup(null);
     const { error } = await supabase.from("group_predictions").upsert({
       user_email: activeKey,
@@ -250,7 +251,7 @@ export function Groups() {
         {Object.keys(grouped)
           .sort()
           .map((g) => {
-            const locked = locks[g];
+            const locked = globalLocked;
             const order = predictions[g] ?? grouped[g].map((t) => t.id);
             const actual = actuals[g];
             const breakdown = actual ? scoreGroupOrder(order, actual) : null;

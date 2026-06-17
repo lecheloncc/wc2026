@@ -6,6 +6,7 @@ import { supabase } from "../lib/supabase";
 import { useActiveParticipant } from "../components/ActiveParticipant";
 import { useT } from "../components/I18n";
 import { MyPointsDetail } from "./MyPointsDetail";
+import { useNow } from "../hooks/useNow";
 import {
   Calendar,
   Target,
@@ -265,9 +266,10 @@ export function Dashboard() {
 
 function DeadlineCard({ state }: { state: DeadlineState }) {
   const { t } = useT();
+  const now = useNow();
   if (!state.openingKickoff) return null;
   const opening = new Date(state.openingKickoff);
-  const ms = opening.getTime() - Date.now();
+  const ms = opening.getTime() - now;
   const locked = ms <= 0;
 
   return (

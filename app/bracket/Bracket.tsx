@@ -7,6 +7,7 @@ import { Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { useActiveParticipant } from "../../components/ActiveParticipant";
 import { useT } from "../../components/I18n";
 import { InlineScoreEditor } from "../../components/InlineScoreEditor";
+import { useNow } from "../../hooks/useNow";
 
 type KnockoutMatch = {
   id: number;
@@ -31,6 +32,7 @@ export function Bracket() {
   const [hidePredicted, setHidePredicted] = useState(false);
   const { activeKey } = useActiveParticipant();
   const { t, stageName } = useT();
+  const now = useNow();
 
   useEffect(() => {
     (async () => {
@@ -139,7 +141,7 @@ export function Bracket() {
             </h2>
             <div className="grid gap-2 md:grid-cols-2">
               {rows.map((m) => {
-                const locked = new Date(m.kickoff).getTime() <= Date.now();
+                const locked = new Date(m.kickoff).getTime() <= now;
                 const hasActual = m.home_score != null && m.away_score != null;
                 const hasPred = m.pred_home != null && m.pred_away != null;
                 const teamsAssigned =
@@ -191,6 +193,7 @@ export function Bracket() {
                       <div className="mt-2 pt-2 border-t border-pitch-line/60 flex items-center justify-end">
                         <InlineScoreEditor
                           matchId={m.id}
+                          kickoff={m.kickoff}
                           activeKey={activeKey}
                           initialPredHome={m.pred_home}
                           initialPredAway={m.pred_away}

@@ -226,6 +226,12 @@ export const NL: Record<string, string> = {
   "No scores yet. Come back after the opening match!":
     "Nog geen punten. Kom terug na de openingswedstrijd!",
 
+  // Save-time lock guards
+  "This match has just locked. Refresh to see the live result.":
+    "Deze wedstrijd is zojuist gesloten. Vernieuw de pagina om de live uitslag te zien.",
+  "Predictions have just locked. Refresh to see the live results.":
+    "De voorspellingen zijn zojuist gesloten. Vernieuw de pagina om de live uitslagen te zien.",
+
   // My points detail
   "See points details": "Bekijk puntenoverzicht",
   "Pred": "Pred",

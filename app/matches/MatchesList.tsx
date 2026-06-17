@@ -7,6 +7,7 @@ import { Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { useActiveParticipant } from "../../components/ActiveParticipant";
 import { useT } from "../../components/I18n";
 import { InlineScoreEditor } from "../../components/InlineScoreEditor";
+import { useNow } from "../../hooks/useNow";
 
 type Row = {
   id: number;
@@ -91,9 +92,9 @@ export function MatchesList() {
     );
   }
 
+  const now = useNow();
   if (loading)
     return <p className="text-slate-500 text-xs uppercase">{t("Loading…")}</p>;
-  const now = Date.now();
 
   return (
     <div className="space-y-3">
@@ -193,6 +194,7 @@ export function MatchesList() {
                   </span>
                   <InlineScoreEditor
                     matchId={r.id}
+                    kickoff={r.kickoff}
                     activeKey={activeKey}
                     initialPredHome={r.pred_home}
                     initialPredAway={r.pred_away}

@@ -15,12 +15,14 @@ export type SavedPred = { pred_home: number; pred_away: number };
  */
 export function InlineScoreEditor({
   matchId,
+  kickoff,
   activeKey,
   initialPredHome,
   initialPredAway,
   onSaved,
 }: {
   matchId: number;
+  kickoff?: string;
   activeKey: string;
   initialPredHome: number | null;
   initialPredAway: number | null;
@@ -36,6 +38,12 @@ export function InlineScoreEditor({
   async function save(e: React.MouseEvent | React.FormEvent) {
     e.preventDefault();
     e.stopPropagation();
+    // Layer 2 guard: re-check kickoff at the moment of save in case the UI
+    // ticker hasn't fired yet (clock drift, ~30 s tick lag, fast clicker).
+    if (kickoff && Date.now() >= new Date(kickoff).getTime()) {
+      setErr(t("This match has just locked. Refresh to see the live result."));
+      return;
+    }
     setSaving(true);
     setErr(null);
     const { error } = await supabase.from("match_predictions").upsert({

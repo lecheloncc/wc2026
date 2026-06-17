@@ -7,6 +7,7 @@ import { scoreMatch, type Stage } from "../../../lib/scoring/match";
 import { Lock, CheckCircle } from "lucide-react";
 import { useActiveParticipant } from "../../../components/ActiveParticipant";
 import { useT } from "../../../components/I18n";
+import { useNow } from "../../../hooks/useNow";
 
 type Match = {
   id: number;
@@ -30,6 +31,7 @@ export function MatchOne({ matchId }: { matchId: number }) {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const now = useNow();
 
   useEffect(() => {
     (async () => {
@@ -75,13 +77,18 @@ export function MatchOne({ matchId }: { matchId: number }) {
 
   if (loading || !match) return <p className="text-slate-500 text-xs">{t("Loading…")}</p>;
 
-  const locked = new Date(match.kickoff).getTime() <= Date.now();
+  const locked = new Date(match.kickoff).getTime() <= now;
   const hasActual = match.home_score != null && match.away_score != null;
   const breakdown = hasActual
     ? scoreMatch(predHome, predAway, match.home_score!, match.away_score!, match.stage)
     : null;
 
   async function save() {
+    // Layer 2 guard: re-check kickoff at the moment of save
+    if (match && Date.now() >= new Date(match.kickoff).getTime()) {
+      setSaveError(t("This match has just locked. Refresh to see the live result."));
+      return;
+    }
     setSaving(true);
     setSaved(false);
     setSaveError(null);
