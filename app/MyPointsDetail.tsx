@@ -36,6 +36,11 @@ type TournamentRow = {
   dark_horse_team_id: number | null;
 };
 
+// Late joiners: their Groups breakdown reflects pot-order defaults and their
+// Topscorer breakdown would show pre-cutoff goals that get penalty-deducted
+// by a DB trigger. Hide both sections to avoid confusing them.
+const LATE_JOINER_EMAILS = ["nickfranken82@gmail.com", "gosiafranken1@gmail.com"];
+
 /**
  * Player-facing detailed breakdown — shows every prediction the player made
  * with the points they earned (or will earn). Hidden behind a "Show details"
@@ -45,6 +50,7 @@ export function MyPointsDetail({ participantKey }: { participantKey: string }) {
   const { t } = useT();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const isLateJoiner = LATE_JOINER_EMAILS.includes(participantKey);
 
   // Reference data
   const [teams, setTeams] = useState<Team[]>([]);
@@ -327,7 +333,8 @@ export function MyPointsDetail({ participantKey }: { participantKey: string }) {
                 </div>
               </details>
 
-              {/* Groups */}
+              {/* Groups — hidden for late joiners */}
+              {!isLateJoiner && (
               <details className="bg-pitch-bg border border-pitch-line rounded-sm">
                 <summary className="cursor-pointer px-3 py-2 text-xs font-bold uppercase tracking-widest text-brand-sky">
                   {t("Groups")} ({groupRows.length}) — {groupTotal} {t("pts")}
@@ -378,8 +385,10 @@ export function MyPointsDetail({ participantKey }: { participantKey: string }) {
                   )}
                 </div>
               </details>
+              )}
 
-              {/* Topscorers */}
+              {/* Topscorers — hidden for late joiners */}
+              {!isLateJoiner && (
               <details className="bg-pitch-bg border border-pitch-line rounded-sm">
                 <summary className="cursor-pointer px-3 py-2 text-xs font-bold uppercase tracking-widest text-brand-sky">
                   {t("Topscorers")} ({tsRows.length}) — {tsTotal} {t("pts")}
@@ -425,6 +434,7 @@ export function MyPointsDetail({ participantKey }: { participantKey: string }) {
                   )}
                 </div>
               </details>
+              )}
 
               {/* Tournament picks */}
               <details className="bg-pitch-bg border border-pitch-line rounded-sm">

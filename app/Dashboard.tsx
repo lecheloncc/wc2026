@@ -7,6 +7,11 @@ import { useActiveParticipant } from "../components/ActiveParticipant";
 import { useT } from "../components/I18n";
 import { MyPointsDetail } from "./MyPointsDetail";
 import { useNow } from "../hooks/useNow";
+
+// Late joiners get their Groups + Topscorer breakdowns hidden — their picks
+// were seeded with defaults (group order) or carry a trigger-applied penalty
+// (topscorer). The Total still reflects the correct (post-penalty) score.
+const LATE_JOINER_EMAILS = ["nickfranken82@gmail.com", "gosiafranken1@gmail.com"];
 import {
   Calendar,
   Target,
@@ -193,10 +198,20 @@ export function Dashboard() {
           <p className="text-[10px] uppercase tracking-widest text-slate-500 font-mono mb-3 flex items-center gap-2">
             <Trophy size={12} /> {t("Points breakdown")}
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div
+            className={`grid grid-cols-2 gap-3 ${
+              activeKey && LATE_JOINER_EMAILS.includes(activeKey)
+                ? "sm:grid-cols-2"
+                : "sm:grid-cols-4"
+            }`}
+          >
             <BreakdownStat label={t("Matches")} value={totals.match_points} />
-            <BreakdownStat label={t("Groups")} value={totals.group_points} />
-            <BreakdownStat label={t("Topscorers")} value={totals.topscorer_points} />
+            {!(activeKey && LATE_JOINER_EMAILS.includes(activeKey)) && (
+              <>
+                <BreakdownStat label={t("Groups")} value={totals.group_points} />
+                <BreakdownStat label={t("Topscorers")} value={totals.topscorer_points} />
+              </>
+            )}
             <BreakdownStat label={t("Bonus")} value={totals.tournament_points} />
           </div>
         </section>
