@@ -117,9 +117,11 @@ export function GoalEntry({ matches }: { matches: Match[] }) {
   }
 
   // Only matches with both teams assigned + a final result make sense for goal logging.
-  const finalisedMatches = matches.filter(
-    (m) => m.home_team_id && m.away_team_id && m.status === "final"
-  );
+  // Most recent kickoff first so the latest match is at the top of the picker.
+  const finalisedMatches = matches
+    .filter((m) => m.home_team_id && m.away_team_id && m.status === "final")
+    .slice()
+    .sort((a, b) => b.kickoff.localeCompare(a.kickoff));
 
   return (
     <section className="bg-pitch-card border border-pitch-line rounded-sm p-5">

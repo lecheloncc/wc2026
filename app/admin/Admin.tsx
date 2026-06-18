@@ -35,6 +35,7 @@ export function Admin() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [recomputing, setRecomputing] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [hidePlayed, setHidePlayed] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -220,10 +221,10 @@ export function Admin() {
         </p>
       )}
 
-      <Participants />
-      {/* (department + country fields only render on the work instance — see Participants.tsx) */}
-
-      <Progress />
+      {/* Participants + Progress hidden — pre-tournament setup is done.
+          Re-enable if needed for late sign-ups or admin overview. */}
+      {/* <Participants /> */}
+      {/* <Progress /> */}
 
       <GroupResultsEntry />
 
@@ -234,11 +235,22 @@ export function Admin() {
       <Reconciliation />
 
       <div>
-        <h2 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-2">
-          Match Results
-        </h2>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-sm font-black uppercase tracking-widest text-slate-400">
+            Match Results
+          </h2>
+          <button
+            onClick={() => setHidePlayed((v) => !v)}
+            className="text-[10px] uppercase tracking-widest font-bold text-slate-300 hover:text-white border border-pitch-line rounded-sm px-3 py-1.5"
+          >
+            {hidePlayed ? "Show all" : "Hide played"}
+          </button>
+        </div>
         <div className="space-y-2">
-          {matches.map((m) => (
+          {(hidePlayed
+            ? matches.filter((m) => m.home_score == null)
+            : matches
+          ).map((m) => (
             <MatchRow key={m.id} m={m} onSave={saveResult} onReset={resetResult} />
           ))}
         </div>
