@@ -7,6 +7,7 @@ import { deriveTournamentResults } from "../../lib/scoring/tournament";
 import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { GoalEntry } from "./GoalEntry";
 import { GroupResultsEntry } from "./GroupResultsEntry";
+import { KnockoutBracketEntry } from "./KnockoutBracketEntry";
 import { GoldenBootEntry } from "./GoldenBootEntry";
 import { Participants } from "./Participants";
 import { Progress } from "./Progress";
@@ -227,6 +228,8 @@ export function Admin() {
       {/* <Progress /> */}
 
       <GroupResultsEntry />
+
+      <KnockoutBracketEntry />
 
       <GoalEntry matches={matches} />
 
