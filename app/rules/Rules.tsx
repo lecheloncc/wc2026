@@ -43,34 +43,7 @@ export function Rules() {
         {t("Rules & Scoring")}
       </h1>
 
-      {/* Rules of engagement / payment — placeholder, edit the bank line below */}
-      <section className="bg-brand-gold/10 border border-brand-gold/40 rounded-sm p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <AlertCircle size={16} className="text-brand-gold" />
-          <h2 className="text-sm font-black uppercase tracking-widest text-brand-gold">
-            {t("Rules of engagement")}
-          </h2>
-        </div>
-        <p className="text-sm text-slate-200 leading-relaxed">
-          <b>{t("Entry fee: € 10 per player.")}</b>{" "}
-          {t(
-            "Transfer to NL06RABO 0174 3180 65 (account holder: Robin Franken) before the tournament kicks off on 11 June 2026. Mention your display name in the description so I can match the payment."
-          )}
-        </p>
-        <p className="text-sm text-slate-200 mt-3 leading-relaxed">
-          {t(
-            "Accounts that haven't paid by kickoff will be removed (kindly). All paid players play for the prize pool."
-          )}
-        </p>
-        <p className="text-sm text-slate-200 mt-3 leading-relaxed">
-          {t(
-            "International players: trouble transferring to a Dutch IBAN? Reach out in time and we'll find an alternative (Wise, Revolut, PayPal, etc.). Don't leave it to the last minute."
-          )}
-        </p>
-        <p className="text-[11px] text-slate-500 font-mono mt-3">
-          {t("Payment status is shown on the leaderboard.")}
-        </p>
-      </section>
+      {/* Rules of engagement / payment hidden — tournament is underway, all payments collected. */}
 
       {/* Prize pool — placeholder split, may shift with final headcount */}
       <section className="bg-pitch-card border border-brand-grass/40 rounded-sm p-5">
@@ -98,11 +71,6 @@ export function Rules() {
             </li>
           ))}
         </ul>
-        <p className="text-[11px] text-slate-500 font-mono mt-3 leading-relaxed">
-          {t(
-            "Placeholder split — the exact percentages may still shift depending on how many players join, but this is the direction."
-          )}
-        </p>
       </section>
 
       <Section title={t("Match predictions (all 104 matches)")}>
