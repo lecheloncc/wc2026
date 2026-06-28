@@ -367,6 +367,8 @@ export const NL: Record<string, string> = {
   "Match prediction accuracy": "Nauwkeurigheid wedstrijdvoorspellingen",
   "How well did everyone predict the completed matches": "Hoe goed waren de voorspellingen voor de gespeelde wedstrijden",
   "Tap a match to see everyone's predictions": "Tik op een wedstrijd om ieders voorspelling te zien",
+  "Show group matches": "Toon groepswedstrijden",
+  "Hide group matches": "Verberg groepswedstrijden",
   "Exact score": "Exacte score",
   "No predictions for this match": "Geen voorspellingen voor deze wedstrijd",
   "Exact": "Exact",

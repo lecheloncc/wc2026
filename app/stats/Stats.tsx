@@ -146,6 +146,8 @@ export function Stats() {
   const [tsSort, setTsSort] = useState<"ownership" | "goals">("ownership");
   // group consensus expanded groups
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  // match accuracy: show group matches toggle (default hidden, knockouts only)
+  const [showGroupMatches, setShowGroupMatches] = useState(false);
   // match accuracy expanded matches
   const [expandedMatches, setExpandedMatches] = useState<Set<number>>(new Set());
 
@@ -490,7 +492,15 @@ export function Stats() {
       {/* ── Match prediction accuracy (top section) ── */}
       {hasResults && (
         <Section icon={<Target size={14} />} title={t("Match prediction accuracy")}>
-          <p className="text-[10px] text-slate-500 -mt-1">{t("Tap a match to see everyone's predictions")}</p>
+          <div className="flex items-center justify-between gap-2 -mt-1">
+            <p className="text-[10px] text-slate-500">{t("Tap a match to see everyone's predictions")}</p>
+            <button
+              onClick={() => setShowGroupMatches((v) => !v)}
+              className="text-[10px] uppercase tracking-widest font-bold text-slate-300 hover:text-white border border-pitch-line rounded-sm px-2 py-1"
+            >
+              {showGroupMatches ? t("Hide group matches") : t("Show group matches")}
+            </button>
+          </div>
           <div className="space-y-0 mt-1">
             {/* Header */}
             <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-2 px-1 pb-1 text-[9px] uppercase tracking-widest text-slate-500 font-mono border-b border-pitch-line">
@@ -500,7 +510,7 @@ export function Stats() {
               <span className="text-center w-10">{t("Wrong")}</span>
             </div>
             {matchAccuracy
-              .filter(({ match }) => match.stage !== "group")
+              .filter(({ match }) => showGroupMatches || match.stage !== "group")
               .map(({ match, total, exact, correctOutcome, wrong }) => {
               const home = teamById.get(match.home_team_id!);
               const away = teamById.get(match.away_team_id!);
