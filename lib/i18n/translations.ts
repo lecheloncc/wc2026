@@ -250,6 +250,8 @@ export const NL: Record<string, string> = {
   "Knockout Bracket": "Knockout-schema",
   "Scoring multipliers: R16 ×1.5 · QF ×2 · SF ×3 · 3rd/Final ×4.":
     "Punten-vermenigvuldigers: Achtste finale ×1,5 · Kwartfinale ×2 · Halve finale ×3 · Troostfinale/Finale ×4.",
+  "Predict the score after 90 minutes + extra time (if applicable). Penalty shootouts do not count toward the score.":
+    "Voorspel de uitslag na 90 minuten + verlenging (indien van toepassing). Strafschoppen tellen niet mee voor de score.",
 
   // Rules
   "Rules & Scoring": "Regels & punten",

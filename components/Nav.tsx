@@ -37,7 +37,8 @@ export function Nav({ email, isAdmin }: { email: string | null; isAdmin: boolean
   // instance keeps the slimmer nav.
   const links = [
     ...(isWerk() ? [{ href: "/", label: t("Dashboard") }] : []),
-    { href: "/matches", label: t("Matches") },
+    // Matches tab hidden — group stage is complete; knockout predictions are on /bracket.
+    // { href: "/matches", label: t("Matches") },
     { href: "/groups", label: t("Groups") },
     { href: "/predictions", label: t("Predictions") },
     ...(bracketVisible ? [{ href: "/bracket", label: t("Bracket") }] : []),

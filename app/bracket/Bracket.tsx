@@ -119,6 +119,10 @@ export function Bracket() {
           {hidePredicted ? t("Show all") : t("Hide predicted")}
         </button>
       </div>
+
+      <div className="bg-brand-gold/10 border border-brand-gold/40 rounded-sm p-3 text-xs text-brand-gold">
+        ⏱ {t("Predict the score after 90 minutes + extra time (if applicable). Penalty shootouts do not count toward the score.")}
+      </div>
       <div className="flex items-center gap-2">
         <div className="flex-1 h-1.5 bg-pitch-line rounded-full overflow-hidden">
           <div
