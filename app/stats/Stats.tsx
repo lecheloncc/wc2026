@@ -499,7 +499,9 @@ export function Stats() {
               <span className="text-center w-14">{t("Correct outcome")}</span>
               <span className="text-center w-10">{t("Wrong")}</span>
             </div>
-            {matchAccuracy.map(({ match, total, exact, correctOutcome, wrong }) => {
+            {matchAccuracy
+              .filter(({ match }) => match.stage !== "group")
+              .map(({ match, total, exact, correctOutcome, wrong }) => {
               const home = teamById.get(match.home_team_id!);
               const away = teamById.get(match.away_team_id!);
               const isExpanded = expandedMatches.has(match.id);
@@ -648,7 +650,8 @@ export function Stats() {
         />
       </Section>
 
-      {/* ── 6. Group order consensus ── */}
+      {/* ── 6. Group order consensus — hidden, group stage complete ── */}
+      {false && (
       <Section icon={<Layers size={14} />} title={t("Group order consensus")}>
         <p className="text-[10px] text-slate-500 -mt-1">{t("Most popular pick per position in each group")}</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-2">
@@ -704,6 +707,7 @@ export function Stats() {
           })}
         </div>
       </Section>
+      )}
 
       {/* ── 8. Points by category ── */}
       {hasResults && avgPoints && (

@@ -227,7 +227,8 @@ export function Admin() {
       {/* <Participants /> */}
       {/* <Progress /> */}
 
-      <GroupResultsEntry />
+      {/* Group Final Standings hidden — group stage complete, all 12 results entered. */}
+      {/* <GroupResultsEntry /> */}
 
       <KnockoutBracketEntry />
 
@@ -251,8 +252,8 @@ export function Admin() {
         </div>
         <div className="space-y-2">
           {(hidePlayed
-            ? matches.filter((m) => m.home_score == null)
-            : matches
+            ? matches.filter((m) => m.stage !== "group" && m.home_score == null)
+            : matches.filter((m) => m.stage !== "group")
           ).map((m) => (
             <MatchRow key={m.id} m={m} onSave={saveResult} onReset={resetResult} />
           ))}
